@@ -776,4 +776,4 @@ data "aws_ami" "ubuntu" { // AMI Ubuntu
   owners = ["099720109477"] // Account del owner
 }
 ```
-<p>Hem indicat que volem la versió més recent de la AMI. D'altra banda, especifiquem que volem la següent AMI <b>“ubuntu-focal-20.04-amd64-server-*”</b> i que la AMI utilitzi <b>“HVM”</b> com a tipus de visualització.</p>
+<p>Hemos indicado que queremos la versión más reciente de la AMI. Por otro lado, especificamos que queremos la siguiente AMI <b>“ubuntu-focal-20.04-amd64-server-*”</b> y que la AMI utilice <b>“HVM”</b> como tipo de visualización.</p>
