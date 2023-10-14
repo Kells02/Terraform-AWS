@@ -12,6 +12,18 @@
   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/4fe46b91-c1eb-4e36-9a44-fa023900a3ee" width="700" alt="Terraform - AWS">
 </div>
 
+<video width="640" height="360" controls>
+  <source src="https://github.com/Kells02/Terraform-AWS/assets/101474487/ec54cd1e-a12e-4220-9f59-dde9ed69f446" type="video/mp4">
+</video>
+
+<iframe width="560" height="315" src="https://github.com/Kells02/Terraform-AWS/assets/101474487/ec54cd1e-a12e-4220-9f59-dde9ed69f446" frameborder="0" allowfullscreen></iframe>
+
+<video width="640" height="360" controls>
+  <source src="https://github.com/Kells02/Terraform-AWS/assets/101474487/ec54cd1e-a12e-4220-9f59-dde9ed69f446" type="video/mp4">
+  Tu navegador no soporta el tag de video.
+</video>
+
+
 <h2>I. Terraform: Infraestructura como código</h2>
 
 <p>Terraform es una herramienta de infraestructura como código desarrollada por HashiCorp. Permite definir y
