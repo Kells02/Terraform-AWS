@@ -777,3 +777,19 @@ data "aws_ami" "ubuntu" { // AMI Ubuntu
 }
 ```
 <p>Hemos indicado que queremos la versión más reciente de la AMI. Por otro lado, especificamos que queremos la siguiente AMI <b>“ubuntu-focal-20.04-amd64-server-*”</b> y que la AMI utilice <b>“HVM”</b> como tipo de visualización.</p>
+
+<h3>x. Instalador Automático de Wordpress</h3>
+<p>Per a la instal·lació de Wordpress hem creat dos arxius: <b>“user_data.tpl”</b> i <b>“user_data_ubuntu.tpl”</b>.</p>
+<p>L'arxiu <b>“user_data.tpl”</b> aquesta configurat per a realitzar la instal·lació per a una instància Amazon Linux, en canvi l'arxiu <b>“user_data_ubuntu.tpl”</b> aquesta configurat per a realitzar la instal·lació per a una instància Ubuntu.</p>
+<p>A continuació podem veure la configuració de l'arxiu <b>“user_data_ubuntu.tpl”</b>.</p>
+
+```tpl
+#!/bin/bash
+# Instalador automático de Wordpress en AWS Amazon Linux2
+
+# 1. Indicamos las variables para la conexión a la bd. Las variables se completarán con la plantilla que hemos configurado anteriormente en (instances.tf)
+db_username=${db_username} # Usuario de la base de datos
+db_user_password=${db_user_password} # Contraseña de la base de datos
+db_name=${db_name} # Nombre de la base de datos
+db_RDS=${db_RDS} # Endpoint de la base de datos
+```
