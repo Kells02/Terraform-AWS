@@ -551,7 +551,7 @@ resource "aws_route_table_association" "Nat-Gateway-RT-Association-2" {
 ```
 <p>En resumen, este código crea una tabla de rutas específica para la NAT Gateway-2, permitiendo que el tráfico de salida de la subred privada wp-2 pase a través de la NAT Gateway-2. Esto asegura la conectividad a Internet para los recursos situados en esta subred privada.</p>
 
-<h3>vii. Creación de las instancias</h3>
+<h3>vii. Creación de las Instancias</h3>
 <p>Antes de empezar a crear las instancias se ha requerido crear las claves de acceso para acceder a ellas remotamente, como hemos comentado anteriormente.</p>
 <p>Antes de definir las instancias hemos definido un recurso en <b>“instances.tf”</b> que nos permite importar la clave pública generada anteriormente, para su uso en las instancias.</p>
 
@@ -569,3 +569,161 @@ resource "aws_key_pair" "mykey-pair" {
 <b><li>aws_ami.tf:</b> Este archivo define los parámetros de las AMI (Amazon Machine Image) que utilizaremos para crear las instancias.</li>
 <b></li>user_data.tpl:</b> Script de instalación automática y configuración de Wordpress para instancias Amazon Linux.</li>
 <b><li>user_data_ubuntu.tpl:</b> Script de instalación y configuración automática de Wordpress para instancias Ubuntu.</li>
+
+<h3>viii. Creación de los Grupos de Seguridad</h3>
+<p>Los grupos de seguridad ayudan a proteger y controlar el tráfico de red dentro de la infraestructura de AWS, garantizando que sólo se permitan las conexiones necesarias y restringiendo el acceso no autorizado.</p>
+<p>Hemos creado el archivo <b>“security-groups.tf”</b> en el que hemos definido todos los grupos de seguridad necesarios para nuestra infraestructura.</p>
+<p>A continuación, hemos definido el grupo de seguridad para las instancias bastión.</p>
+
+```hcl
+# --Grupos de Seguridad--
+
+# 1. Grupo de Seguridad para Bastion
+resource "aws_security_group" "bastion" {
+  vpc_id = aws_vpc.vpc.id // Indicamos VPC
+
+  ingress { // Creamos la regla de entrada (Permitimos Todo)
+    description = "All trafic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress { // Creamos la regla de salida (Permitimos todo)
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "Bastion - allow all trafic"
+  }
+}
+```
+<p>Este grupo de seguridad permite todo el tráfico. Permite cualquier tipo de conexión de entrada y salida.</p>
+<p>Actúa como un punto de entrada seguro para acceder a otros recursos en la red.</p>
+<p>También se ha definido el grupo de seguridad para las instancias Wordpress.</p>
+
+```hcl
+# 2. Grupo de seguridad para Wordpress
+resource "aws_security_group" "wordpress" {
+  vpc_id = aws_vpc.vpc.id // Indicamos VPC
+
+  ingress { // Creamos la regla de entrada HTTPS
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { // Creamos la regla de entrada HTTP
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { // Creamos la regla de entrada MYSQL
+    description = "MYSQL"
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { // Creamos la regla de entrada SSH
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress { // Creamos la regla de salida (Permitimos todo)
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "Wordpress - allow ssh,http,https"
+  }
+}
+```
+<p>Este grupo de seguridad permite el tráfico específico necesario para ejecutar un servidor Wordpress.</p>
+<p>Permite conexiones HTTP (puerto 80), HTTPS (puerto 443), MySQL (puerto 3306) y SSH (puerto 22) desde cualquier dirección IP. Además permite todo el tráfico de salida.</p>
+<p>Definimos el grupo de seguridad para la base de datos.</p>
+
+```hcl
+# 3. Grupo de Seguridad para RDS
+resource "aws_security_group" "RDS_allow_rule" {
+  vpc_id = aws_vpc.vpc.id // Indicamos la VPC
+  
+  ingress { // Creamos la regla de entrada MYSQL
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.wordpress.id}"] // Solo le permite la conexión a las instáncias con este grupo de seguridad
+  }
+
+  egress { // Creamos la regla de salida (Permitimos todo)
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "RDS - Allow EC2"
+  }
+}
+```
+<p>Este grupo de seguridad se utiliza para controlar el acceso al cluster de base de datos de Amazon RDS (Relational Database Service). Sólo permite conexiones MySQL (puerto 3306) desde instancias que tengan el grupo de seguridad "aws_security_group.wordpress.id", que es el grupo de seguridad de Wordpress definido anteriormente. Permite todo el tráfico de salida.</p>
+<p>A continuación definimos el último grupo de seguridad. El grupo de seguridad para el balanceo de carga.</p>
+
+```hcl
+# 4. Grupo de Seguridad para el Balanceo de Carga
+resource "aws_security_group" "balanceo" {
+  vpc_id = aws_vpc.vpc.id // Indicamos la VPC
+  
+  ingress { // Creamos la regla de entrada HTTPS
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress { // Creamos la regla de entrada HTTP
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress { // Creamos la regla de salida (Permitimos todo)
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "Balanceo de carga"
+  }
+}
+```
+<p>Este grupo de seguridad permite conexiones HTTP (puerto 80), HTTPS (puerto 443) desde cualquier dirección IP. Además permite todo el tráfico de salida.</p>
+<p>Por último se define un grupo de subred para las bases de datos.</p>
+
+```hcl
+# 5. Crear grupo de subred RDS
+resource "aws_db_subnet_group" "RDS_subnet_grp" {
+  subnet_ids = ["${aws_subnet.private-subnet-rds-1.id}", "${aws_subnet.private-subnet-rds-2.id}"] // Indicamos las subredes donde estarán las bases de datos
+}
+```
+<p>Especificamos las subredes privadas de las bases de datos. Esto es necesario para configurar correctamente el cluster en la red.</p>
