@@ -550,3 +550,22 @@ resource "aws_route_table_association" "Nat-Gateway-RT-Association-2" {
 }
 ```
 <p>En resumen, este código crea una tabla de rutas específica para la NAT Gateway-2, permitiendo que el tráfico de salida de la subred privada wp-2 pase a través de la NAT Gateway-2. Esto asegura la conectividad a Internet para los recursos situados en esta subred privada.</p>
+
+<h3>vii. Creación de las instancias</h3>
+<p>Antes de empezar a crear las instancias se ha requerido crear las claves de acceso para acceder a ellas remotamente, como hemos comentado anteriormente.</p>
+<p>Antes de definir las instancias hemos definido un recurso en <b>“instances.tf”</b> que nos permite importar la clave pública generada anteriormente, para su uso en las instancias.</p>
+
+```hcl
+# --Instancias--
+
+# 1. Importamos la clave para las instancias
+resource "aws_key_pair" "mykey-pair" {
+  key_name   = var.key_name // Nombre de la clave
+  public_key = file(var.PUBLIC_KEY_PATH) // Clave pública
+}
+```
+<p>Además, se ha requerido crear varios archivos previos: “security-groups.tf”, “aws_ami”, “user_data.tpl” y "user_data_ubuntu.tpl".</p>
+<b><li>security-groups.tf:</b> Este archivo define los grupos de seguridad que utilizaremos en la infraestructura.</li>
+<b><li>aws_ami.tf:</b> Este archivo define los parámetros de las AMI (Amazon Machine Image) que utilizaremos para crear las instancias.</li>
+<b></li>user_data.tpl:</b> Script de instalación automática y configuración de Wordpress para instancias Amazon Linux.</li>
+<b><li>user_data_ubuntu.tpl:</b> Script de instalación y configuración automática de Wordpress para instancias Ubuntu.</li>
