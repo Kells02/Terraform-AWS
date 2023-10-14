@@ -409,3 +409,144 @@ resource "aws_subnet" "private-subnet-rds-2" {
 }
 ```
 <p>La red de la cuarta subred privada es 30.0.6.0/24, definimos que se encuentre en us-east-1b.</p>
+
+<h3>v. Creación de Internet Gateway y el enrutamiento de las subredes públicas</h3>
+<p>En este apartado se crea una Internet Gateway (puerta de enlace de Internet) para permitir el acceso a Internet desde la VPC.</p>
+<p>Internet Gateway actúa como un punto de conexión entre la VPC e Internet. Permite que los recursos dentro de la VPC accedan a Internet y también permite el tráfico de entrada desde Internet hacia los recursos de la VPC, según las reglas de seguridad y encaminamiento configuradas.</p>
+<p>A continuación definimos la Internet Gateway.</p>
+
+```hcl
+# 8. Gateway Subred Pública (Creamos el Gateway para poder tener acceso a Internet)
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.vpc.id // Indicamos la VPC
+  tags = {
+    Name = "Internet Gateway - Public & Private VPC"
+  }
+}
+```
+<p>En el següent codi definim una taula de rutes per a la subxarxa pública. La taula de rutes especifica com s’enruta el trànsit dins de la VPC i cap a fora d'ella, i en aquest cas es configura per a permetre l'accés a Internet.</p>
+
+```hcl
+# 9. (Definimos la tabla de rutas para la subred pública, especificamos la puerta de enlace de Internet)
+resource "aws_route_table" "public-rt" {
+  vpc_id = aws_vpc.vpc.id // Indicamos la VPC
+
+  route { // Definimos la ruta
+    cidr_block = "0.0.0.0/0" // Permitimos el tráfico desde cualquier dirección IP hacia fuera de la VPC
+    gateway_id = aws_internet_gateway.igw.id // Indicamos el internet gateway
+ }
+  tags = {
+    Name = "Enrutamiento para Internet Gateway"
+  }
+}
+```
+<p>Aquesta configuració assegura que tot el trànsit destinat a adreces IP externes (0.0.0.0/0) es dirigeixi a la Internet Gateway, la qual cosa permet que les instàncies en la subxarxa pública accedeixin a Internet.</p>
+
+```hcl
+#  10. Asociar Route Table a la Subred Pública-1
+// (Asociamos la tabla de enrutamiento a la subred pública-1 para darle la puerta de enlace de Internet)
+resource "aws_route_table_association" "rt-association1" {
+  subnet_id      = aws_subnet.public-subnet-1.id // Indicamos la subred pública-1
+  route_table_id = aws_route_table.public-rt.id // Indicamos la tabla de rutas
+}
+
+#  10.5 Asociar Route Table a la Subred Pública-2
+// (Asociamos la tabla de enrutamiento a la subred pública-2 para darle la puerta de enlace de Internet)
+resource "aws_route_table_association" "rt-association2" {
+  subnet_id      = aws_subnet.public-subnet-2.id // Indicamos la subred pública-2
+  route_table_id = aws_route_table.public-rt.id // Indicamos la tabla de rutas
+}
+```
+<p>Estas asociaciones aseguran que las subredes públicas utilicen la tabla de rutas correcta, la que contiene la ruta hacia Internet Gateway. De esta forma, las instancias en las subredes públicas pueden enviar y recibir tráfico hacia y desde Internet.</p>
+
+<h3>vi. Creación de la NAT Gateway y enutameinto de las subredes privadas</h3>
+<p>A continuación hemos creado la primera NAT Gateway con una IP elástica asociada a la subred pública-1. La NAT Gateway permite que las instancias en las subredes privadas se conecten a Internet saliendo a través de la NAT Gateway. La IP elástica asegura que la dirección IP de la NAT Gateway no cambie, lo que es importante para establecer conexiones de salida de confianza.</p>
+
+```hcl
+// --------------------- NAT 1 --------------------------------
+# 11. Creamos una IP elástica para la NAT Gateway-1
+resource "aws_eip" "Nat-Gateway-1" {
+  depends_on = [aws_route_table_association.rt-association1, aws_route_table_association.rt-association2]
+  vpc = true
+}
+
+# 11.5 Creamos la NAT Gateway-1
+resource "aws_nat_gateway" "NAT_GATEWAY-1" {
+  depends_on = [aws_eip.Nat-Gateway-1]
+  allocation_id = aws_eip.Nat-Gateway-1.id # Asociamos la IP elástica con la NAT Gateway-1
+  subnet_id = aws_subnet.public-subnet-1.id # Asociamos a la subred públcia-1
+  tags = {
+    Name = "Nat-Gateway_1"
+  }
+}
+```
+<p>En este fragmento de código se configura y crea una tabla de rutas específica para NAT Gateway 1, así como la asociación entre esta tabla de rutas y la primera subred privada.</p>
+
+```hcl
+# 12. Creamos la tabla de rutas para la NAT Gateway-1
+resource "aws_route_table" "NAT-Gateway-RT-1" {
+  depends_on = [aws_nat_gateway.NAT_GATEWAY-1]
+  vpc_id = aws_vpc.vpc.id // Indicamos la VPC
+
+  route { // Definimos la ruta
+    cidr_block = "0.0.0.0/0" // Permitimos el tráfico desde cualquier dirección IP hacia fuera de la VPC
+    nat_gateway_id = aws_nat_gateway.NAT_GATEWAY-1.id // Indicamos la NAT Gateway-1
+  }
+  tags = {
+    Name = "Route Table for NAT Gateway-1"
+  }
+}
+
+# 13. Creamos la asociación entre la tabla de rutas y la NAT Gateway-1 
+resource "aws_route_table_association" "Nat-Gateway-RT-Association-1" {
+  depends_on = [aws_route_table.NAT-Gateway-RT-1]
+  subnet_id      = aws_subnet.private-subnet-wp-1.id // Subred privada wp-1
+  route_table_id = aws_route_table.NAT-Gateway-RT-1.id // Tabla de rutas NAT-1
+}
+```
+<p>En resum, aquest codi crea una taula de rutes dedicada per a la NAT Gateway-1, que permet l'encaminament del trànsit cap a la NAT Gateway-1 per a la seva sortida a Internet. A més, s'estableix l'associació entre aquesta taula de rutes i la primera subxarxa privada, la qual cosa assegura que el trànsit de sortida d'aquesta subxarxa passi a través de la NAT Gateway-1.</p>
+<p>A continuació creem la segona NAT Gateway amb una IP elàstica associada a la segona subxarxa privada.</p>
+
+```hcl
+// --------------------- NAT 2 --------------------------------
+# 14. Creamos una IP elástica para la NAT Gateway-2
+resource "aws_eip" "Nat-Gateway-2" {
+  depends_on = [aws_route_table_association.rt-association1, aws_route_table_association.rt-association2]
+  vpc = true
+}
+
+# 14.5 Creamos la NAT Gateway-2
+resource "aws_nat_gateway" "NAT_GATEWAY-2" {
+  depends_on = [aws_eip.Nat-Gateway-2]
+  allocation_id = aws_eip.Nat-Gateway-2.id # Asociamos la IP elástica con la NAT Gateway-1
+  subnet_id = aws_subnet.public-subnet-2.id # Asociamos a la subred públcia-1
+  tags = {
+    Name = "Nat-Gateway_2"
+  }
+}
+```
+<p>Configuramos y creamos una mesa de rutas para la segunda NAT Gateway y se realiza la asociación con la segunda subred privada.</p>
+
+```hcl
+# 15. Creamos la tabla de rutas para la NAT Gateway-2
+resource "aws_route_table" "NAT-Gateway-RT-2" {
+  depends_on = [aws_nat_gateway.NAT_GATEWAY-2]
+  vpc_id = aws_vpc.vpc.id // Indicamos la VCP
+
+  route { // Definimos la ruta
+    cidr_block = "0.0.0.0/0" // Permitimos el tráfico desde cualquier dirección IP hacia fuera de la VPC
+    nat_gateway_id = aws_nat_gateway.NAT_GATEWAY-2.id // Indicamos la NAT Gateway-2
+  }
+  tags = {
+    Name = "Route Table for NAT Gateway-2"
+  }
+}
+
+# 16. Creamos la asociación entre la tabla de rutas y la NAT Gateway-1 
+resource "aws_route_table_association" "Nat-Gateway-RT-Association-2" {
+  depends_on = [aws_route_table.NAT-Gateway-RT-2]
+  subnet_id      = aws_subnet.private-subnet-wp-2.id // Subred privada wp-2
+  route_table_id = aws_route_table.NAT-Gateway-RT-2.id // Tabla de rutas NAT-2
+}
+```
+<p>En resumen, este código crea una tabla de rutas específica para la NAT Gateway-2, permitiendo que el tráfico de salida de la subred privada wp-2 pase a través de la NAT Gateway-2. Esto asegura la conectividad a Internet para los recursos situados en esta subred privada.</p>
