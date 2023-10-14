@@ -1,4 +1,4 @@
-<h1>SkyForge</h1>
+<h1>SkyForge | Terraform & AWS</h1>
 
 <p>El proyecto consiste en desplegar una infraestructura en la nube utilizando Terraform en el proveedor de servicios AWS. A través de la automatización de la infraestructura, nuestro objetivo es crear una plataforma escalable, flexible y altamente disponible para alojar múltiples instancias WordPress.</p>
 
@@ -1207,4 +1207,10 @@ resource "aws_autoscaling_policy" "wordpress" {
     }
 }
 ```
-<p>Hemos definido que el grupo de acto escalado debe ajustar automáticamente el número de instancias en función de una métrica objetivo. En este caso, la métrica objetivo es el uso de CPU, estableciéndose un valor objetivo del 75%. Si el uso de CPU supera este valor, se crearán nuevas instancias automáticamente en el grupo de acto escalado.</p>
+<p>Hemos definido que el grupo de autoo escalado debe ajustar automáticamente el número de instancias en función de una métrica objetivo. En este caso, la métrica objetivo es el uso de CPU, estableciéndose un valor objetivo del 75%. Si el uso de CPU supera este valor, se crearán nuevas instancias automáticamente en el grupo de acto escalado.</p>
+
+<h2>V. Conclusión</h2>
+<p>En conclusión, el despliegue automatizado de esta infraestructura en la nube utilizando Terraform y AWS nos ha permitido crear un entorno altamente disponible, escalable y flexible para a alojar nuestros sitios de WordPress. Mediante la configuración de una VPC, subredes, balanceo de carga, autoescalado y clúster de base de datos, hemos logrado establecer una infraestructura robusta que puede adaptarse a las necesidades cambiantes.</p>
+<p>Aquest projecte ens ha brindat nombrosos beneficis, com la capacitat d'escalar automàticament les nostres instàncies de WordPress segons la demanda, garantint una experiència òptima per als usuaris. A més, hem assegurat l'alta disponibilitat i la tolerància a fallades en distribuir les nostres instàncies en diferents zones de disponibilitat i en implementar mecanismes de connectivitat redundant.</p>
+<p>La utilización de Terraform nos ha permitido gestionar y mantener fácilmente nuestra infraestructura como a código, lo que facilita la replicación del entorno en diferentes etapas de desarrollo y en otros regiones de AWS si es necesario. Asimismo, hemos aprovechado las ventajas de AWS como proveedor de servicios en la nube, beneficiándonos de su amplia gama de servicios y su escalabilidad.</p>
+<p>En resumen, este proyecto ha demostrado el valor de la automatización y la infraestructura como código en la creación de una arquitectura cloud robusta y adaptable. Hemos aprendido a escalar una posible infraestructura de forma eficiente y brindar un servicio de confianza a nuestros usuarios.</p>
