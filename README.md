@@ -261,7 +261,6 @@ module aws_wordpress {
     root_volume_size = 22   // Tamaño de almacenamiento para Wordpress
 }
 ```
-
 <p>El archivo <b>“provider.tf”</b> nos permite realizar la integración y empezar a utilizar el proveedor de AWS, el primero que debemos hacer es definir las siguientes variables.</p>
 
 ```hcl
@@ -273,3 +272,35 @@ provider "aws" {
   secret_key = var.secret_key // Clave de acceso privada a la cuenta de AWS
 }
 ```
+<b><li>provider:</b> Indicamos que se utilizará el proveedor "aws".
+<b><li>region:</b> Especificamos la región de AWS en la que se desplegarán los recursos. En este caso, se utiliza la variable “var.region” para definir la región, su valor es “us-east-1”.
+<b><li>access_key</b> y <b>secret_key:</b> Son las claves de acceso pública y privada a la cuenta de AWS. Éstas claves se obtienen desde las variables “var.access_key” y “var.secret_key”.
+<p>Al establecer el proveedor "aws" con la región y las claves de acceso adecuadas, Terraform podrá autenticarse en la cuenta de AWS y realizar operaciones en los recursos definidos en el archivo de configuración.</p>
+<p>A continuación, ya podemos empezar a crear los recursos para nuestra infraestructura.</p>
+
+<h3>ii. Creación de la VPC</h3>
+
+<p>Primero debemos saber que es una VPC; Una VPC es una red virtual aislada que permite lanzar recursos en AWS.</p>
+<p>Primero de todo definiremos la VPC (Virtual Private Cloud) y las subredes dentro de ella que utilizaremos en la nuestra infraestructura.</p>
+<p>Para ello hemos creado el archivo <b>"vpc-subnets.tf"</b> para definir todos los recursos para la red.</p>
+<p>Nuestra infraestructura contará con una VPC y un total de 6 subredes como hemos comentado anteriormente.</p>
+<p>A continuación definimos la creación de la VPC.</p>
+
+```hcl
+# --VPC & Subredes--
+
+# 1.Creamos VPC (Virtual Private Cloud)
+resource "aws_vpc" "vpc" {
+  cidr_block           =  var.VPC_cidr // Red IPv4 de la VPC (30.0.0.0/16)
+  enable_dns_support   = "true" # Nos da el nombre de dominio interno
+  enable_dns_hostnames = "true" # Nos da el hostname interno
+  instance_tenancy     = "default"
+  tags = {
+    Name = "VPC"
+  }
+}
+```
+<p>La VPC está configurada para que su blog de direcciones IP sea de 30.0.0.0/16. Por otra parte hemos habilitado el soporte para DNS en la VPC, lo que permite que los recursos dentro de la VPC tengan nombres de dominio internos y puedan resolver nombres de dominio.</p>
+<p>También hemos habilitado la opción “enable_dns_hostnames” el cual nos permite que los recursos dentro de la VPC tengan nombres de host internos.</p>
+<p>Por último hemos dejado por defecto el parámetro “instance_tenancy”, el valor "default" indica que las instancias se ejecutarán en hardware compartido. Esto significa que múltiples instancias de diferentes clientes podrían compartir el mismo hardware físico subyacente en el centro de datos de AWS.</p>
+<p>En un entorno de hardware compartido, AWS es responsable de administrar y asignar los recursos de hardware adecuado para garantizar un rendimiento y seguridad óptimos para las instancias. Esto permite a AWS utilizar de forma eficiente los recursos físicos y reducir los costes, ya que múltiples clientes pueden compartir el mismo hardware sin comprometer el aislamiento y la seguridad de los datos.</p>
