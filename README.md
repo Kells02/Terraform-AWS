@@ -160,6 +160,20 @@ El balanceo de carga actuará como un punto de entrada centralizado y distribuir
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/eb82b2bc-c2d8-4755-819d-b50f66d3f7fb" width="500">
 </div>
 
+<h2>IV. Código de la infraestructura</h2>
 
+<h3>i. Configuraciones basicas</h3>
 
+<p>Ante todo hemos creado el archivo <b>“versiones.tf”</b>, en el que indicamos que versiones queremos utilizar tanto para en Terraform como para el provider.</p>
 
+# --Configuración Terraform--
+
+terraform {
+  required_version = ">= 1.0" // Indicamos la versión mínima requerida
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws" // Indicamos el proveedor
+      version = "~> 3.0" // Indicamos la versión mínima del proveedor
+    }
+  }
+}
