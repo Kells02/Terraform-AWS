@@ -164,8 +164,9 @@ El balanceo de carga actuará como un punto de entrada centralizado y distribuir
 
 <h3>i. Configuraciones basicas</h3>
 
-<p>Ante todo hemos creado el archivo <b>“versiones.tf”</b>, en el que indicamos que versiones queremos utilizar tanto para en Terraform como para el provider.</p>
+<p>Primero de todo hemos creado el archivo <b>“versiones.tf”</b>, en el que indicamos que versiones queremos utilizar tanto para en Terraform como para el provider.</p>
 
+```hcl
 # --Configuración Terraform--
 
 terraform {
@@ -177,3 +178,98 @@ terraform {
     }
   }
 }
+```
+<p>Este código contiene dos secciones principales: <b>terraform</b> y <b>required_providers</b>.
+
+En la seccion <b>terraform</b>, se especifica que se requiere una versión de Terraform igual o superior a la versión 1.0. Indicamos esto para asegurarnos de que el archivo de configuración se ejecute correctamente en la versión correcta de Terraform.
+
+La seccion <b>required_providers</b> especifica los proveedores de Terraform necesarios para el archivo de configuración. En ese caso, se requiere el proveedor de AWS de HashiCorp, que es responsable de interactuar con los recursos de AWS. Indicamos la versión mínima del proveedor, en cuyo caso, "~> 3.0" indica que se requiere una versión igual o superior a 3.0, pero inferior a la versión 4.0.
+
+Estas configuraciones nos aseguran que el archivo de configuración se ejecute correctamente en la versión de Terraform adecuada y que se utilice el proveedor de AWS en la versión mínima requerida.
+
+Por otro lado he creado el archivo <b>“variables.tf”</b> donde están definidas todas las variables que se utilizarán en el archivo de configuración de terraformo. Estas variables permiten parametrizar y personalizar diferentes aspectos del despliegue de la infraestructura.</p>
+
+```hcl
+# --Variables--
+
+variable "database_name" {} // Nombre de la base de datos
+variable "database_password" {} // Contraseña de la base de datos
+variable "database_user" {} // Usuario de la base de datos
+variable "region" {} // Region que vamos a utilizar
+variable "access_key" {} // Clave de acceso pública a la cuenta de AWS
+variable "secret_key" {} // Clave de acceso privada a la cuenta de AWS
+variable "IsUbuntu" { // Indicamos que la instáncia és Ubuntu / Sino será Amazon Linux
+  type    = bool
+  default = true
+}
+variable "AZ1" {} // Zona 1
+variable "AZ2" {} // Zona 2
+variable "VPC_cidr" {} // Red VPC
+variable "subnet1_cidr" {} // Subred Bastion-1
+variable "subnet2_cidr" {} // Subred Bastion-2
+variable "subnet3_cidr" {} // Subred Wordpress-1
+variable "subnet4_cidr" {} // Subred Wordpress-2
+variable "subnet5_cidr" {} // Subred RDS-1
+variable "subnet6_cidr" {} // Subred RDS-2
+variable "PUBLIC_KEY_PATH" {} // Path clave pública
+variable "PRIV_KEY_PATH" {} // Path clave privada
+variable "KEY_PUTTY" {} // Path de la clave para putty
+variable "instance_type" {} // Tipo de instáncia Wordpress
+variable "instance_class" {} // Tipo de instáncia RDS
+variable "engine" {} // Motor de la base de datos
+variable "engine_version" {} // Versión del motor de la base de datos
+variable "backup_retention_period" {} // Período de retención de copias de seguridad
+variable "preferred_backup_window" {} // Indicamos la ventana de tiempo preferida para realizar los backups
+variable "preferred_maintenance_window" {} // Indicamos la ventana de tiempo preferida para realizar las tareas de mantenimiento
+variable "key_name" {} // Nombre de la clave
+variable "root_volume_size" {} // Tamaño de almacenamiento para Wordpress
+```
+<p>A continuación en el archivo <b>“module.tf”</b> hemos creado el modulo “aws_wordpress” en el que hemos especificado el contenido de cada variable.</p>
+
+```hcl
+# --Parámetros--
+
+module aws_wordpress {
+    access_key = "(Tu clave pública)" // Clave de acceso pública a la cuenta de AWS
+    secret_key = "(Tu clave privada)" // Clave de acceso privada a la cuenta de AWS
+    source            = "./modules/latest"
+    database_name     = "wordpress_db"   // Nombre de la base de datos
+    database_user     = "admin" // Nombre del usuario de la base de datos
+    database_password = "admin12345" // Contraseña de la base de datos
+    region            = "us-east-1" // Region en la que desplegaremos la infraestructura
+    IsUbuntu          = true // TRUE para ubuntu,FALSE para linux 2
+    AZ1          = "us-east-1a" // Zona 1
+    AZ2          = "us-east-1b" // Zona 2
+    VPC_cidr     = "30.0.0.0/16"     // Red de la VPC 
+    subnet1_cidr = "30.0.1.0/24"     // Subred Pública para bastion-1
+    subnet2_cidr = "30.0.2.0/24"     // Subred Pública para bastion-2
+    subnet3_cidr = "30.0.3.0/24"     // Subred Privada para wordpress-1
+    subnet4_cidr = "30.0.4.0/24"     // Subred Privada para wordpress-2
+    subnet5_cidr = "30.0.5.0/24"     // Subred Privada para RDS-1
+    subnet6_cidr = "30.0.6.0/24"     // Subred Privada para RDS-2
+    PUBLIC_KEY_PATH  = "./mykey-pair.pub" // Path de la clave pública
+    PRIV_KEY_PATH    = "./mykey-pair"   // Path de la clave privada
+    KEY_PUTTY        = "./mykey-pair1.ppk" // Path de la clave para putty
+    instance_type    = "t2.micro"    // Tipo de instáncia para Wordpress
+    instance_class   = "db.r3.large" // Tipo de instáncia para RDS
+    engine           = "aurora-mysql" // Motor de la base de datos
+    engine_version   = "5.7.mysql_aurora.2.07.1" // Versión del motor de la base de datos
+    backup_retention_period = "7" // Período de retención de copias de seguridad
+    preferred_backup_window = "02:00-03:00" // Indicamos la ventana de tiempo preferida para realizar los backups
+    preferred_maintenance_window = "sun:05:00-sun:06:00" // Indicamos la ventana de tiempo preferida para realizar las tareas de mantenimiento
+    key_name = "my-keypair" // Nombre de la clave
+    root_volume_size = 22   // Tamaño de almacenamiento para Wordpress
+}
+```
+
+<p>El archivo <b>“provider.tf”</b> nos permite realizar la integración y empezar a utilizar el proveedor de AWS, el primero que debemos hacer es definir las siguientes variables.</p>
+
+```hcl
+# --Definimos el proveedor (AWS)--
+
+provider "aws" {
+  region     = var.region // Region (us-east-1)
+  access_key = var.access_key // Clave de acceso pública a la cuenta de AWS
+  secret_key = var.secret_key // Clave de acceso privada a la cuenta de AWS
+}
+```
