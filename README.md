@@ -954,3 +954,196 @@ resource "null_resource" "copy_file-2" {
   depends_on = [aws_instance.bastion2]
 }
 ```
+<h3>xii. Instancias Wordpress</h3>
+<p>Antes de definir ambas instancias Wordpress, hemos definido el recurso <b>“data.template_file”</b>. Éste recurso nos permite definir un archivo de datos de usuario, que variará según la AMI utilizada (Ubuntu o Amazon Linux). En la especificamos las variables necesarias para el archivo de datos de el usuario, como el nombre de la base de datos, contraseña de la base de datos, nombre del usuario y el endpoint para poder realizar la conexión. Estos son los datos que se traspasan a los archivos <b>“.tpl”</b>, que hemos comentado anteriormente.</p>
+
+```hcl
+# 5. Permite cambiar el valor de la variable USERDATA después de obtener la información del endpoint de RDS
+data "template_file" "user_data-1" {
+  template = var.IsUbuntu ? file("${path.module}/userdata_ubuntu.tpl") : file("${path.module}/user_data.tpl") // La template varia según la AMI que utilizemos (Por defecto Ubuntu)
+  vars = {
+    db_username      = var.database_user // Usuario de la base de datos
+    db_user_password = var.database_password // Contraseña de la base de datos
+    db_name          = var.database_name // Nombre de la base de datos
+    db_RDS           = aws_rds_cluster_instance.wordpressdb-1.endpoint // Endpoint del clúster (Dirección de conexión del clúster de base de datos)
+  }
+}
+```
+<p>A continuación creamos ambas instancias Wordpress.</p>
+<p>Para la primera instancia hemos indicado la AMI Ubuntu por defecto, el tipo de instancia (t2.micro), el script con la instalación de Wordpress, la clave pública, la subred en este caso la primera subred privada, el grupo de seguridad Wordpress, asignamos una dirección privada "30.0.3.50" y el tamaño del volumen raíz de almacenamiento de la instancia.</p>
+
+```hcl
+# 6. Creamos la instáncia Wordpress1
+resource "aws_instance" "wordpress1" {
+  depends_on      = [aws_rds_cluster_instance.wordpressdb-1] // Se creará después del Nodo-1
+  ami             = var.IsUbuntu ? data.aws_ami.ubuntu.id : data.aws_ami.linux2.id // AMI (ami-0481e8ba7f486bd99)
+  instance_type   = var.instance_type // Tipo de instáncia (t2.micro)
+  user_data       = data.template_file.user_data-1.rendered // Script ejecutable
+  key_name        = aws_key_pair.mykey-pair.id // Id clave privada
+  subnet_id       = aws_subnet.private-subnet-wp-1.id // Indicamos la subred privada wp-1
+  security_groups = ["${aws_security_group.wordpress.id}"] // Indicamos el grupo de seguridad wordpress
+  private_ip      = "30.0.3.50" // Asignamos una IP privada a la instáncia
+  root_block_device {
+    volume_size = var.root_volume_size # Tamaño de almacenamiento en GB (22)
+  }
+  tags = {
+    Name = "Wordpress-1"
+  }
+}
+```
+<p>Creem la segona instància Wordpress.</p>
+<p>Fem la mateixa configuració, però canviem la subxarxa per la segona subxarxa privada amb la IP privada “30.0.3.50”.</p>
+
+```hcl
+# 7. Creamos la instáncia Wordpress2
+resource "aws_instance" "wordpress2" {
+  depends_on      = [aws_rds_cluster_instance.wordpressdb-2, aws_instance.wordpress1] // Se creará después del Nodo-1 y del WP-1
+  ami             = var.IsUbuntu ? data.aws_ami.ubuntu.id : data.aws_ami.linux2.id // AMI (ami-0481e8ba7f486bd99)
+  instance_type   = var.instance_type // Tipo de instáncia (t2.micro)
+  user_data       = data.template_file.user_data-1.rendered // Script ejecutable
+  key_name        = aws_key_pair.mykey-pair.id // Id clave privada
+  subnet_id       = aws_subnet.private-subnet-wp-2.id // Indicamos la subred privada wp-2
+  security_groups = ["${aws_security_group.wordpress.id}"] // Indicamos el grupo de seguridad wordpress
+  private_ip      = "30.0.4.50" // Asignamos una IP privada a la instáncia
+  root_block_device {
+    volume_size = var.root_volume_size # Tamaño de almacenamiento en GB (22)
+  }
+  tags = {
+    Name = "Wordpress-2"
+  }
+}
+```
+<p>Com hem comentat abans aquestes instàncies sortiran a Internet mitjançant les NAT Gateways configurades anteriorment.</p>
+
+<h3>xiii. Creación del Clúster</h3>
+<p>Hemos definido un cluster mediante el servicio RDS (Relational Dtabase Service) de AWS en el archivo <b>“database.tf”</b>.</p>
+<p>A continuación, podemos ver cómo hemos definido el recurso <b>“aws_rds_clúster”</b> para la creación del clúster.</p>
+
+```hcl
+# --Base de datos--
+
+# 1. Creamos el cluster
+resource "aws_rds_cluster" "wordpressdb-cluster" {
+  cluster_identifier   = "wordpress-cluster"
+  engine               = var.engine // Motor de la base de datos (aurora-mysql)
+  engine_version       = var.engine_version // Versión del motor de la base de datos (5.7.mysql_aurora.2.07.1)
+  database_name        = var.database_name // Nombre de la DB (wordpress_db)
+  master_username      = var.database_user // Usuario de la DB (admin)
+  master_password      = var.database_password // Contraseña de la DB (password)
+  backup_retention_period = var.backup_retention_period // // Período de retención de copias de seguridad
+  preferred_backup_window = var.preferred_backup_window // Indicamos la ventana de tiempo preferida para realizar los backups
+  preferred_maintenance_window = var.preferred_maintenance_window // Indicamos la ventana de tiempo preferida para realizar las tareas de mantenimiento
+  skip_final_snapshot  = true // Indicamos que no queremos una instantánea del clúster cuando este se elimine
+  vpc_security_group_ids = [aws_security_group.RDS_allow_rule.id] // Grupo de seguridad RDS
+  db_subnet_group_name   = aws_db_subnet_group.RDS_subnet_grp.id // Grupo de la subred RDS
+}
+```
+<p>Hemos indicado el motor de la base de datos (aurora-mysql), la versión del motor de la base de datos, nombre de la base de datos, usuario, contraseña, el período de retención de copias de seguridad, la ventana de tiempo preferida para realizar las copias de seguridad, la ventana de tiempo preferida por a realizar tareas de mantenimiento, indicamos su grupo de seguridad y el grupo de subred creado anteriormente.</p>
+<p>Por otra parte, creamos el primer nodo. Este nodo es el máster.</p>
+
+```hcl
+# 2. Creamos el Nodo1 - Master
+resource "aws_rds_cluster_instance" "wordpressdb-1" { // Nodo1 - Master (Escritura)
+  depends_on = [aws_rds_cluster.wordpressdb-cluster]
+  identifier = "master"
+  cluster_identifier    = aws_rds_cluster.wordpressdb-cluster.id // Indicamos el cluster
+  instance_class        = var.instance_class // Tipo de instáncia (db.r3.large)
+  engine                = var.engine // Motor de la base de datos (aurora-mysql)
+  publicly_accessible   = false // Indicamos que no sea accesible públicamente. No es accesible desde Internet
+  db_subnet_group_name  = aws_db_subnet_group.RDS_subnet_grp.name // Indicamos el grupo de subredes
+}
+```
+<p>Indicamos el clúster que pertenece, el tipo de instancia (db.r3.large), el motor de la base de datos (aurora-mysql), indicamos que no sea accesible públicamente y le decimos el grupo de subredes al que pertenece.</p>
+<p>Por último creamos el segundo nodo. Este nodo es el esclavo. Su configuración es muy similar a primer nodo.</p>
+
+```hcl
+# 3. Creamos el Nodo2 - Slave
+resource "aws_rds_cluster_instance" "wordpressdb-2" { // Nodo2 - Slave (Lectura + Réplica)
+  depends_on = [aws_rds_cluster_instance.wordpressdb-1]
+  identifier = "slave"
+  cluster_identifier    = aws_rds_cluster.wordpressdb-cluster.id // Indicamos el cluster
+  instance_class        = var.instance_class // Tipo de instáncia (db.r3.large)
+  engine                = var.engine // Motor de la base de datos (aurora-mysql)
+  publicly_accessible   = false // Indicamos que no sea accesible públicamente. No es accesible desde Internet
+  db_subnet_group_name  = aws_db_subnet_group.RDS_subnet_grp.name // Indicamos el grupo de subredes
+}
+```
+<p>Establecemos los mismos valores que el nodo1. En este caso indicamos que dependa del nodo1. Cómo podemos ver no es necesario indicarle si es el nodo maestro o esclavo ya que al crearse después del nodo1, AWS ya da por supuesto que es el nodo esclavo.</p>
+
+<h3>xiv. Creación del Balanceo de Carga</h3>
+<p>Hemos creado un balanceo de carga en el archivo <b>“balanceador.tf”</b>, ya que es una estrategia clave para mejorar el rendimiento, la disponibilidad y la escalabilidad de las aplicaciones y servicios. Permite distribuir la carga de trabajo de forma equitativa, mejorar el tiempo de respuesta, garantizar la disponibilidad continua y facilitar la gestión del tráfico.</p>
+<p>Ante todo hemos tenido que definir un target group (grupo objetivo). Un target group representa un grupo lógico de destinos a los que se dirigen las solicitudes entrantes desde el balanceador de carga. Cada target group está asociado a un balanceador de carga y define las instancias o destinos a los que se debe enrutar el tráfico de forma equitativa y eficiente.</p>
+
+```hcl
+# --Balanceo de carga--
+
+# 1. Cremos el target group
+resource "aws_lb_target_group" "my_target_group" {
+  name        = "my-target-group"
+  port        = 80 // Puerto que escucha wp
+  protocol    = "HTTP" // Protocolo
+  vpc_id      = aws_vpc.vpc.id // Indicamos la VPC
+  target_type = "instance" // instance
+
+  health_check { // Verifica el estado de las instancias wordpress
+    healthy_threshold   = 2 // Cantidad de comprobaciones
+    interval            = 30 // Intervalo de tiempo entre cada comprobación
+    protocol            = "HTTP" // El protocolo para realizar la comprobación
+    path                = "/" // Ruta de la solicitud del balanceador (Donde está instalado wp)
+    timeout             = 5 // Tiempo máximo que el balanceador de carga espera a que se complete la solicitud
+    unhealthy_threshold = 2 // Cantidad de comprobaciones que deben fallar antes de que considere que las instancias están en mal estado
+  }
+}
+```
+<p>Hemos indicado el puerto por el que escuchará las solicitudes entrantes en este caso el puerto 80, el protocolo HTTP, VPC y el tipo de destino que en este caso nos referimos a las instancias.</p>
+<p>Por otro lado tenemos el blog <b>"health_check"</b>. En este blog hemos definido la configuración de verificación estado de las instancias Wordpress.</p>
+<p>Hemos especificado el número de comprobaciones consecutivas que deben ser exitosas para que una instancia se marque como saludable, en este caso un total de 2, un intervalo de 30 segundos entre cada comprobación de estado, el protocolo HTTP por donde se realizará la comprobación, la ruta de la solicitud que se utiliza para la comprobación de estado, en este caso, se utiliza "/" para verificar la ruta raíz del servicio Wordpress, el tiempo máximo en segundos que el balanceador de carga espera que se complete una solicitud antes de considerarla como quiebra y finalmente el número de comprobaciones consecutivas que deben fallar para que una instancia se marque como no saludable.</p>
+<p>A continuación hemos definido el balanceo de carga.</p>
+
+```hcl
+# 2. Creamos el balanceo de carga
+resource "aws_lb" "wordpress" { // Creamos el balanceo
+  depends_on = [ aws_lb_target_group.my_target_group ]
+  name               = "wordpress"
+  internal           = false // Lo queremeos externo (Da direcciones IP públicas)
+  load_balancer_type = "application" // A nivel de aplicación
+  subnets            = [aws_subnet.public-subnet-1.id, aws_subnet.public-subnet-2.id] // Hay que poner las subredes públicas
+  security_groups    = [aws_security_group.balanceo.id] // Grupo de seguridad del balanceo
+}
+```
+<p>Indicamos que nuestro balanceo de carga sea externo, es decir que tendrá direcciones IP públicas.</p>
+<p>Especificamos que queremos un balanceo de carga de tipo aplicación, lo que indica que opera en nivel de aplicación y es capaz de dirigir las solicitudes con rutas distintas a destinos diferentes. Finalmente indicamos las subredes en las que se desplegará el balanceo de carga, en este caso las dos subredes públicas e indicamos su grupo de seguridad.</p>
+<p>También hemos definido un listenero para el balanceo de carga. El listener sirve como un intermediario entre el tráfico entrante y los destinos configurados, asegurando que las solicitudes se distribuyan de manera eficiente y equilibrada, mejorando la disponibilidad, escalabilidad y rendimiento de las aplicaciones o servicios desplegados en la infraestructura.</p>
+
+```hcl
+# 3. Cremos el listener del balanceo de carga
+resource "aws_lb_listener" "my_listener" {
+  depends_on = [ aws_lb.wordpress ]
+  load_balancer_arn = aws_lb.wordpress.arn // Indicamos el balanceo de carga
+  port              = "80" // Puerto por el que va escuchar
+  protocol          = "HTTP" // Protocolo
+
+  default_action {
+    type             = "forward" // Redirigir
+    target_group_arn = aws_lb_target_group.my_target_group.arn // Indicamos el target group
+  }
+}
+```
+<p>Como podemos ver hemos indicado el balanceo de carga, el puerto 80 es por donde escuchara las solicitudes entrantes junto el protocolo HTTP. Finalmente hemos configurado el listener para que las solicitudes recibidas sean reenviadas al target group asociado.</p>
+<p>Por último, asociamos las instancias wordpress previamente definidas en el target group.</p>
+
+```hcl
+# 4. Asociamos la instáncia wp1 al target group
+resource "aws_lb_target_group_attachment" "wp1" {
+  target_group_arn = aws_lb_target_group.my_target_group.arn // Indicamos el target group
+  target_id        = aws_instance.wordpress1.id // Indicamos la instáncia wp1
+  port = 80 // Puerto de escucha
+}
+
+# 4.5 Asociamos la instáncia wp2 al target group
+resource "aws_lb_target_group_attachment" "wp2" {
+  target_group_arn = aws_lb_target_group.my_target_group.arn // Indicamos el target group
+  target_id        = aws_instance.wordpress2.id // Indicamos la instáncia wp2
+  port = 80 // Puerto de escucha
+}
+```
