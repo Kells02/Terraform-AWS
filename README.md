@@ -1,10 +1,7 @@
 <h1>SkyForge | Terraform & AWS</h1>
 
 <h2>Tabla de Contenidos</h2> 
-1. [Introcucción](#hola)
 
-<h2>Introducción</h2>
-## hola
 <p>El proyecto consiste en desplegar una infraestructura en la nube utilizando Terraform en el proveedor de servicios AWS. A través de la automatización de la infraestructura, nuestro objetivo es crear una plataforma escalable, flexible y altamente disponible para alojar múltiples instancias WordPress.</p>
 
 <p>La infraestructura implementada incluye una VPC con subredes públicas y privadas distribuidas en diferentes zonas de disponibilidad. Además, he configurado un clúster de base de datos. Para garantizar la conectividad a las instancias de WordPress ubicadas en subredes privadas, he implementado puertas de enlace NAT y un host bastión en las subredes públicas.</p>
