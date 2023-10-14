@@ -847,3 +847,110 @@ a2enmod rewrite # Habilitamos el módulo "rewrite" de Apache. Es necesario para 
 # 7. Reiniciamos Apache
 systemctl restart apache2 # Reiniciamos el servicio de Apache
 ```
+<h3>xi. Instancias Bastión</h3>
+<p>Como hemos comentado anteriormente, las instancias bastión actúan como un punto de entrada seguro y controlado para acceder a otros servidores en una red privada, proporcionando una capa adicional de seguridad y control en la administración de sistemas.</p>
+<p>Para la creación del primer host bastión, hemos definido 3 recursos:</p>
+<b><li>Creación de la interfaz de red (aws_network_interface):</b> Creamos una interfaz llamada “bastion1”, indicamos la primera subred pública, asignamos una IP privada a la interfaz "30.0.1.50" y especificamos que utilice el grupo de seguridad bastión.</li>
+
+```hcl
+# 2.(Bastion-1). Creamos una interfaz de red con una IP estática del rango de la IP pública
+resource "aws_network_interface" "bastion1" {
+  subnet_id = aws_subnet.public-subnet-1.id // ID subnet pública
+  private_ips = ["30.0.1.50"] // IP Privada
+  security_groups = ["${aws_security_group.bastion.id}"] // Grupo de seguridad Bastion
+}
+```
+<b><li>Asignación de una IP elástica a la interfaz de red (aws_eip):</b> Creamos una dirección IP elástica y la asociamos con la interfaz de red “bastion1”. Indicamos que utilizamos la IP privada "30.0.1.50".</li>
+
+```hcl
+# 2.5 (Bastion-1). Asignamos una IP elastica a la interfaz que hemos creado en el punto
+resource "aws_eip" "one" { // Para la Bastion-1
+  depends_on = [aws_instance.wordpress1]
+  vpc = true
+  network_interface = aws_network_interface.bastion1.id // Indicamos la interfaz de red
+  associate_with_private_ip = "30.0.1.50" // Asociamos la IP privada
+  tags = {
+    Name = "Bastion-1"
+  }
+}
+```
+<b><li>Creación de la instancia del primer host bastión (aws_instance):</b> Indicamos la AMI que utilizaremos (Ubuntu), el tipo de instancia (t2.micro), la clave pública y asignamos la interfaz de red.</li>
+
+```hcl
+# 3. Creamos la instancia Bastion-1
+resource "aws_instance" "bastion1" {
+  depends_on    = [aws_subnet.public-subnet-1, aws_key_pair.mykey-pair]
+  ami           = var.IsUbuntu ? data.aws_ami.ubuntu.id : data.aws_ami.linux2.id // AMI (ami-0481e8ba7f486bd99)
+  instance_type = var.instance_type // Tipo de instancia (t2.micro)
+  key_name      = aws_key_pair.mykey-pair.id // Indicamos la clave
+  network_interface {
+    network_interface_id = aws_network_interface.bastion1.id // Interfaz de red bastion-1
+    device_index = 0
+  }
+  tags = {
+    Name = "Bastion-1"
+  }
+}
+```
+<p>A continuación creamos los mismos recursos para el segundo host bastión.</p>
+<p>Creamos la interfaz de red, en este caso indicamos que esta instancia se encuentre en la segunda subred pública, indicamos la IP privada "30.0.2.50" y su grupo de seguridad.</p>
+
+```hcl
+# 4. (Bastion-2). Creamos una interfaz de red con una IP estática del rango de la IP pública
+resource "aws_network_interface" "bastion2" {
+  subnet_id = aws_subnet.public-subnet-2.id // ID subnet pública-2
+  private_ips = ["30.0.2.50"] // IP Privada
+  security_groups = ["${aws_security_group.bastion.id}"] // Grupo de seguridad Bastion
+}
+```
+<p>Asignamos una IP elástica a la interfaz del segundo host bastión junto con la IP privada "30.0.2.50".</p>
+
+```hcl
+# 4.5 (Bastion-2). Asignamos una IP elastica a la interfaz que hemos creado en el punto
+resource "aws_eip" "two" { // Para la Bastion-2
+  depends_on = [aws_instance.wordpress2]
+  vpc = true
+  network_interface = aws_network_interface.bastion2.id // Indicamos la interfaz de red
+  associate_with_private_ip = "30.0.2.50" // Asociamos la IP privada
+  tags = {
+    Name = "Bastion-2"
+  }
+}
+```
+<p>A continuación creamos la instancia. Indicamos la AMI (Ubuntu), el tipo de instancia (t2.micro), la clave pública y asignamos su interfaz de red.</p>
+
+```hcl
+# 4. Creamos la instancia Bastion-2
+resource "aws_instance" "bastion2" {
+  depends_on    = [aws_subnet.public-subnet-2, aws_key_pair.mykey-pair]
+  ami           = var.IsUbuntu ? data.aws_ami.ubuntu.id : data.aws_ami.linux2.id // AMI (ami-0481e8ba7f486bd99)
+  instance_type = var.instance_type // Tipo de instancia (t2.micro)
+  key_name      = aws_key_pair.mykey-pair.id // Indicamos la clave
+  network_interface {
+    network_interface_id = aws_network_interface.bastion2.id // Interfaz de red bastion-2
+    device_index = 0
+  }
+  tags = {
+    Name = "Bastion-2"
+  }
+}
+```
+<p>Finalmente hemos creado dos recursos “null_resource”, que nos permiten copiar las claves privadas hacia las dos instancias bastión. De esta forma los host bastión podrán hacer SSH hacia las instancias que se encuentren en las subredes privadas.</p>
+
+```hcl
+# 8. Enviamos la clave a la instáncia bastion-1
+resource "null_resource" "copy_file-1" {
+  provisioner "local-exec" {
+    command = "echo 'y' | pscp -i ${var.KEY_PUTTY} ${var.PRIV_KEY_PATH} ubuntu@${aws_eip.one.public_ip}:/home/ubuntu/" // Utilizamos Putty para enviar la clave
+  }
+  depends_on = [aws_instance.bastion1]
+}
+
+# 9. Enviamos la clave a la instáncia bastion-2
+resource "null_resource" "copy_file-2" {
+  provisioner "local-exec" {
+    command = "echo 'y' | pscp -i ${var.KEY_PUTTY} ${var.PRIV_KEY_PATH} ubuntu@${aws_eip.two.public_ip}:/home/ubuntu/" // Utilizamos Putty para enviar la clave
+  }
+  depends_on = [aws_instance.bastion2]
+}
+```
