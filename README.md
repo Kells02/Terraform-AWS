@@ -1,7 +1,3 @@
-<div align="center">
-  <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/4fe46b91-c1eb-4e36-9a44-fa023900a3ee" width="500" alt="Terraform - AWS">
-</div>
-
 <h1>SkyForge</h1>
 
 <p>El proyecto consiste en desplegar una infraestructura en la nube utilizando Terraform en el proveedor de servicios AWS. A través de la automatización de la infraestructura, nuestro objetivo es crear una plataforma escalable, flexible y altamente disponible para alojar múltiples instancias WordPress.</p>
@@ -13,7 +9,7 @@
 <p>En resumen, este proyecto nos permite crear una infraestructura automatizada en AWS, proporcionando una sólida y base escalable para alojar nuestras instancias de WordPress. Ofrece flexibilidad, alta disponibilidad y la capacidad de adaptarse a los cambios en la demanda, asegurando una experiencia de usuario óptima.</p>
 
 <div align="center">
-   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/d6ad5066-f8c1-4147-b044-1d7149275104">
+  <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/4fe46b91-c1eb-4e36-9a44-fa023900a3ee" width="700" alt="Terraform - AWS">
 </div>
 
 <h2>I. Terraform: Infraestructura como código</h2>
@@ -86,3 +82,84 @@ en Terraform incluyen AWS, Azure, Google Cloud Platform, DigitalOcean, entre otr
 </div>
 
 <h2>III. Infraestructura a desplegar</h2>
+
+<p>La infraestructura desplegada consiste en una arquitectura basada en la nube utilizando Amazon Web Services (AWS) como proveedor de servicios. El objetivo principal es crear una infraestructura escalable, segura y de alta disponibilidad para alojar varios WordPress.</p>
+
+<div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/d6ad5066-f8c1-4147-b044-1d7149275104" width="700">
+</div>
+
+<p>La infraestructura se compone de los siguientes elementos principales:</p>
+<b><li>Red y conectividad:</b> La infraestructura se desplegará en la región N.Virginia (us-east-1) de AWS. Esta región específica ofrece una amplia gama de servicios y capacidades de AWS, lo que la convierte en una elección adecuada para nuestro proyecto. 
+
+Dentro de la región N.Virginia, crearemos una Virtual Private Cloud (VPC) para la infraestructura. Una VPC es un servicio de red aislado y personalizable que nos permite lanzar recursos de AWS deforma virtual en una red virtual dedicada.
+
+Para nuestra VPC, asignaremos el rango de dirección IP 30.0.0.0/16.
+
+La VPC, constará de 2 subredes públicas y 4 privadas en las zonas de disponibilidad, la mitad de ellas en “us-east-1a” y la otra en “us-east-1b”.</li>
+
+<p>Tener la infraestructura en diversas zonas de disponibilidad nos ofrece los siguientes beneficios:</p>
+<b><ul><ul><li>Alta disponibilidad:</b> Tener recursos replicados en múltiples zonas de disponibilidad, si una zona experimenta una interrupción o falla, los servicios y aplicaciones pueden seguir funcionando en otras zonas sin interrupciones. Esto garantiza una mayor disponibilidad y reduce el impacto de posibles fallos.</li>
+<b><li>Tolerancia a fallos:</b> La distribución de la infraestructura en múltiples zonas de disponibilidad proporciona resiliencia y capacidad de recuperación. Si una zona se ve afectada por un fallo, los recursos pueden redirigirse automáticamente a las zonas restantes, evitando la pérdida de datos y minimizando el tiempo de inactividad.</li></ul>
+
+<div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/6cd40e83-3fc2-4591-8eea-8f182ce9af5d" width="500">
+</div>
+
+<p>Las subredes públicas estarán configuradas para tener conectividad a Internet y permitir el acceso desde y hacia Internet.
+
+También, las subredes públicas tendrán un host bastión. Este host bastión actuó como un punto de entrada seguro desde una red externa y permite a los administradores acceder de forma controlada a los recursos internos. Al configurar un host bastión, añadimos seguridad y establecemos un nivel adicional de protección para nuestra infraestructura.</p>
+
+<div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/4fe0cb74-df88-4971-82b7-7bbf79a84b71" width="500">
+</div>
+
+<p>Por otra parte, nuestras subredes públicas tendrán una NAT Gateway (Network Address Translation). Estos recursos actuarán como intermediarios para permitir que las subredes donde estarán las instancias Wordpress accedan a recursos externos en Internet de forma segura y controlada.
+  
+La configuración de NAT nos proporciona la capacidad de filtrar y controlar el tráfico saliente desde las nuestras subredes privadas, garantizando así la seguridad y el acceso adecuado a los servicios externos</p>
+
+<div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/ad5a5143-8448-4e16-8b2a-36735622a53a" width="500">
+</div>
+
+<p>Las subredes privadas donde correrán las bases de datos, estarán aisladas de Internet ya que no necesitan acceso directo a Internet. De esta forma no exponemos las bases de datos a amenazas externas.
+
+Para garantizar la conectividad dentro de la VPC y entre las subredes, se configurarán tablas de encaminamiento y grupos de seguridad. Las tablas de encaminamiento definen cómo se enrutan los paquetes de red dentro de la VPC, asegurando que los recursos de las diferentes subredes puedan comunicarse entre sí según sea necesario.
+
+Los grupos de seguridad actuarán como firewalls virtuales, controlando el tráfico de red entrante y saliente para nuestros recursos y garantizando un entorno seguro</p>
+
+<b><li>Base de datos:</b> Dentro de nuestra infraestructura, desplegaremos un clúster de bases de datos con 2 nodos basado en el enfoque “Master-Slave” utilizando Amazon Aurora.
+
+Un cluster “Master-Slave” consiste en un nodo principal (Master) y uno o más nodos secundarios (Slaves) que están interconectados y trabajan en conjunto para brindar una mayor disponibilidad, escalabilidad y rendimiento en nuestra aplicación.
+
+Por otra parte, Amazon Aurora es un servicio de base de datos relacional de alto rendimiento.
+
+Amazon Aurora se basa en el motor de base de datos MySQL y ofrece un rendimiento y escalabilidad mejorados en comparación con una base de datos MySQL tradicional. Utiliza una arquitectura de almacenamiento distribuido y replicación automática de datos para garantizar la durabilidad y disponibilidad de los datos.
+
+El nodo Master actuará como punto central de control y gestión del clúster. Es responsable de coordinar y distribuir las tareas entre los nodos esclavos, así como de mantener la coherencia y consistencia de los datos. El nodo Master también es el encargado de manejar las solicitudes de escritura y asegurarse de que se repliquen correctamente en los nodos esclavos.
+
+Por otro lado, el nodo escalau es una réplica del nodo Master y está diseñado para manejar solicitudes de sólo lectura. Este nodo se sincronizará con el nodo Master y mantendrá una copia actualizada de los datos.
+
+La arquitectura de cluster “Master-Slave” ofrece varias ventajas. En primer lugar, proporciona alta disponibilidad, ya que si el nodo Master experimenta algún problema, uno de los nodos Slaves puede asumir el rol de Master y garantizar la continuidad del servicio. Esto asegura que nuestra aplicación esté siempre disponible incluso en caso de fallos.</li>
+
+<div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/04ce556c-45c1-409b-b83b-dcaf570fc8b2" width="500">
+</div>
+
+<b><li>Balanceo de carga:</b> También implementaremos un balanceo de carga para distribuir el tráfico entrando de forma eficiente entre nuestras instancias de WordPress.
+
+El balanceo de carga actuará como un punto de entrada centralizado y distribuirá las solicitudes de los usuarios entre las instancias disponibles, lo que garantizará una distribución equitativa de la carga de trabajo y mejorará la capacidad de respuesta del sistema.</li>
+
+<div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/bd404879-eb49-4f32-aed9-a5b41e3e7f72" width="500">
+</div>
+
+<b><li>Auto Escalado:</b> Por último se implementará la funcionalidad de auto escalado utilizando AWS Auto Scaling en las 2 subredes privadas donde se desplegarán los Wordpress. El auto escalado nos permite ajustar automáticamente la capacidad de nuestras instancias de WordPress en función de la carga de trabajo y la demanda del sistema, garantizando así un rendimiento óptimo y una alta disponibilidad.</li>
+
+<div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/eb82b2bc-c2d8-4755-819d-b50f66d3f7fb" width="500">
+</div>
+
+
+
+
