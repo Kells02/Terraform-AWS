@@ -727,3 +727,53 @@ resource "aws_db_subnet_group" "RDS_subnet_grp" {
 }
 ```
 <p>Especificamos las subredes privadas de las bases de datos. Esto es necesario para configurar correctamente el cluster en la red.</p>
+
+<h3>ix. Definición de parámetros AMI</h3>
+<p>Como hemos mencionado anteriormente, podemos realizar la instalación de Wordpress en una instancia Ubuntu o Amazon Linux. Por eso, hemos creado el archivo <b>“aws_ami.tf”</b> para definir los parámetros de cada uno. Estas AMIs se utilizarán más adelante en la configuración para crear instancias de EC2 con las imágenes correctas.</p>
+
+<p>A continuación podemos ver la configuración de ese archivo.</p>
+<p>Primero de todo hemos definido los parámetros de la AMI de Amazon Linux.</p>
+
+```hcl
+# --Parámetros AMI--
+
+# 1. AMI Linux
+data "aws_ami" "linux2" { // AMI Amazon Linux2
+  most_recent = true // Queremos utilizar la última versión
+
+  filter { // Filtros de la AMI
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners      = ["amazon"] // Account del owner
+}
+```
+<p>Hemos indicado que queremos la versión más reciente de la AMI. Por otra parte, especificamos que queremos la siguiente AMI <b>“amzn2-ami-hvm-*-x86_64-gp2”</b> y que la AMI utilice <b>“HVM”</b> como tipo de visualización.</p>
+<p>También queremos que la AMI sea oficial por Amazon.</p>
+<p>Por otra parte, hemos definido los parámetros de la AMI de Ubuntu.</p>
+
+```hcl
+# 2. AMI Ubuntu
+data "aws_ami" "ubuntu" { // AMI Ubuntu
+  most_recent = true // Queremos utilizar la última versión
+
+  filter { // Filtros de la AMI
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] // Account del owner
+}
+```
+<p>Hem indicat que volem la versió més recent de la AMI. D'altra banda, especifiquem que volem la següent AMI <b>“ubuntu-focal-20.04-amd64-server-*”</b> i que la AMI utilitzi <b>“HVM”</b> com a tipus de visualització.</p>
