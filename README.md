@@ -300,7 +300,112 @@ resource "aws_vpc" "vpc" {
   }
 }
 ```
-<p>La VPC está configurada para que su blog de direcciones IP sea de 30.0.0.0/16. Por otra parte hemos habilitado el soporte para DNS en la VPC, lo que permite que los recursos dentro de la VPC tengan nombres de dominio internos y puedan resolver nombres de dominio.</p>
+<p>La VPC está configurada para que su bloque de direcciones IP sea de 30.0.0.0/16. Por otra parte hemos habilitado el soporte para DNS en la VPC, lo que permite que los recursos dentro de la VPC tengan nombres de dominio internos y puedan resolver nombres de dominio.</p>
 <p>También hemos habilitado la opción “enable_dns_hostnames” el cual nos permite que los recursos dentro de la VPC tengan nombres de host internos.</p>
 <p>Por último hemos dejado por defecto el parámetro “instance_tenancy”, el valor "default" indica que las instancias se ejecutarán en hardware compartido. Esto significa que múltiples instancias de diferentes clientes podrían compartir el mismo hardware físico subyacente en el centro de datos de AWS.</p>
 <p>En un entorno de hardware compartido, AWS es responsable de administrar y asignar los recursos de hardware adecuado para garantizar un rendimiento y seguridad óptimos para las instancias. Esto permite a AWS utilizar de forma eficiente los recursos físicos y reducir los costes, ya que múltiples clientes pueden compartir el mismo hardware sin comprometer el aislamiento y la seguridad de los datos.</p>
+
+<h3>iii. Creación de las subredes públicas</h3>
+
+<p>Nuestra infraestructura cuenta con 2 subredes públicas. Cada una de las subredes públicas cuentan con un host bastión que posteriormente crearemos y también tendrán una Nat Gateway que darán salida a Internet en las subredes privadas.</p>
+<p>A continuación definimos la primera subred pública.</p>
+
+```hcl
+# 2.Creamos la Subred Pública-1 para Bastion-1
+resource "aws_subnet" "public-subnet-1" {
+  depends_on = [aws_vpc.vpc]
+  vpc_id                  = aws_vpc.vpc.id // Indicamos la VPC
+  cidr_block              = var.subnet1_cidr // Red IPv4 de la subred pública-1 (30.0.1.0/24)
+  map_public_ip_on_launch = "true" // Hace de esta una subred pública
+  availability_zone       = var.AZ1 // Indicamos la region de la subred (us-east-1a)
+  tags = {
+    Name = "Subred Pública-1"
+  }
+}
+```
+<p>Ante todo hemos definido que este recurso dependa de la VPC, a continuación hemos asociado la subred con la VPC definida anteriormente.</p>
+<p>La red de esta subred es 30.0.1.0/24 y se encuentra en la región us-east-1a.</p>
+<p>A continuación definimos la segunda subred pública.</p>
+
+```hcl
+# 3. Creamos la Subred Pública-2 para Bastion-2
+resource "aws_subnet" "public-subnet-2" {
+  depends_on = [aws_vpc.vpc]
+  vpc_id                  = aws_vpc.vpc.id // Indicamos la VPC
+  cidr_block              = var.subnet2_cidr // Red IPv4 de la subred pública-2 (30.0.2.0/24)
+  map_public_ip_on_launch = "true" // Hace de esta una subred pública
+  availability_zone       = var.AZ2 // Indicamos la region de la subred (us-east-1b)
+  tags = {
+    Name = "Subred Pública-2"
+  }
+}
+```
+<p>La configuración es muy similar a la primera subred, pero la red de esta subred es la 30.0.2.0/24 y se encuentra en una región distinta, en us-east-1b.</p>
+
+<h3>iv. Creación de las subredes privadas</h3>
+
+<p>A continuación definiremos las 4 subredes privadas que desplegaremos. Dos de las subredes serán dedicadas a web y las otras dos a un cluster de base de datos.</p>
+<p>Definimos la primera subred privada para nuestro primer Wordpress.</p>
+
+```hcl
+# 4. Creamos la Subred Privada-1 para Wordpress-1
+resource "aws_subnet" "private-subnet-wp-1" {
+  depends_on              = [aws_vpc.vpc]
+  vpc_id                  = aws_vpc.vpc.id // Indicamos la VPC
+  cidr_block              = var.subnet3_cidr // Red IPv4 de la subred pública-1 (30.0.3.0/24)
+  map_public_ip_on_launch = "false" // Hace de esta una subred privada
+  availability_zone       = var.AZ1 // Indicamos la region de la subred (us-east-1a)
+  tags = {
+    Name = "Subred Privada-1 WP"
+  }
+}
+```
+<p>La red de esta subred es 30.0.3.0/24, definimos que se encuentre en us-east-1a.</p>
+<p>Segunda subred privada para el segundo Wordpress.</p>
+
+```hcl
+# 5. Creamos la Subred Privada-2 para Wordpress-2
+resource "aws_subnet" "private-subnet-wp-2" {
+  depends_on              = [aws_vpc.vpc]
+  vpc_id                  = aws_vpc.vpc.id // Indicamos la VPC
+  cidr_block              = var.subnet4_cidr // Red IPv4 de la subred pública-1 (30.0.4.0/24)
+  map_public_ip_on_launch = "false" // Hace de esta una subred privada
+  availability_zone       = var.AZ2 // Indicamos la region de la subred (us-east-1b)
+  tags = {
+    Name = "Subred Privada-2 WP"
+  }
+}
+```
+<p>La red de la segunda subred privada es 30.0.4.0/24, definimos que se encuentre en us-east-1b.</p>
+<p>Tercera subred privada para una de las bases de datos.</p>
+
+```hcl
+# 6. Creamos la Subred Privada-1 para RDS-1
+resource "aws_subnet" "private-subnet-rds-1" {
+  depends_on              = [aws_vpc.vpc]
+  vpc_id                  = aws_vpc.vpc.id // Indicamos la VPC
+  cidr_block              = var.subnet5_cidr // Red IPv4 de la subred privada-1 (30.0.5.0/24)
+  map_public_ip_on_launch = "false" // Hace de esta una subred privada
+  availability_zone       = var.AZ1 // Indicamos la region de la subred (us-east-1a)
+  tags = {
+    Name = "Subred Privada-1 RDS"
+  }
+}
+```
+<p>La red de la tercera subred privada es 30.0.5.0/24, definimos que se encuentre en us-east-1a.</p>
+<p>Última subred privada para la segunda base de datos.</p>
+
+```hcl
+# 7. Creamos la Subred Privada-2 para RDS-2
+resource "aws_subnet" "private-subnet-rds-2" {
+  depends_on              = [ aws_vpc.vpc ]
+  vpc_id                  = aws_vpc.vpc.id // Indicamos la VPC
+  cidr_block              = var.subnet6_cidr // Red IPv4 de la subred privada-2 (30.0.6.0/24)
+  map_public_ip_on_launch = "false" // Hace de esta una subred privada
+  availability_zone       = var.AZ2 // Indicamos la region de la subred (us-east-1b)
+  tags = {
+    Name = "Subred Privada-2 RDS"
+  }
+}
+```
+<p>La red de la cuarta subred privada es 30.0.6.0/24, definimos que se encuentre en us-east-1b.</p>
