@@ -1147,3 +1147,63 @@ resource "aws_lb_target_group_attachment" "wp2" {
   port = 80 // Puerto de escucha
 }
 ```
+<h3>xv. Creación del Auto Escalado</h3>
+<p>También hemos definido un acto escalado en el archivo <b>“auto scaling.tf”</b>, puesto que nos permite ajustar automáticamente la capacidad de recursos de computación en función de la demanda de aplicación.</p>
+<p>A continuación podemos ver la configuración de la instancia de lanzamiento para el escalado automático. La configuración de lanzamiento se utiliza como base para crear nuevas instancias cuando se requiere escalar automáticamente el número de instancias en función de la carga o política de escalado definida.</p>
+
+```hcl
+# --Auto Scaling--
+
+# 1. Configuramos las instáncias del Auto Escalado
+resource "aws_launch_configuration" "wordpress" {
+  name          = "Wordpress-AutoScaling"
+  image_id      = var.IsUbuntu ? data.aws_ami.ubuntu.id : data.aws_ami.linux2.id // AMI (ami-0481e8ba7f486bd99)
+  instance_type = var.instance_type // Tipo de instáncia (t2.micro)
+  key_name      = aws_key_pair.mykey-pair.id // Indicamos la clave privada
+  user_data     = data.template_file.user_data-1.rendered // Script ejecutable
+  security_groups = [aws_security_group.wordpress.id] // Grupo de seguridad a asignar a las instáncias
+}
+```
+<p>Hemos indicado la AMI (Ubuntu), el tipo de instancia (t2.micro), la clave pública, el script con la instalación de Wordpress y el grupo de seguridad Wordpress.</p>
+<p>También hemos definido un grupo de acto escalado. Un grupo de acto escalado es un conjunto de instancias que pueden escalarse automáticamente según la demanda de la aplicación.</p>
+
+```hcl
+# 2. Creamos el grupo de auto scaling
+resource "aws_autoscaling_group" "wordpress" {
+  name                 = "wordpress-group"
+  min_size             = 1 //1 Número mínimo de instáncias
+  max_size             = 2 //2 Número máximo de instáncias
+  desired_capacity     = 2 //2 Capacidad
+  launch_configuration = aws_launch_configuration.wordpress.name // Indicamos la configuración
+  vpc_zone_identifier  = [aws_subnet.private-subnet-wp-1.id, aws_subnet.private-subnet-wp-2.id] // Indicamos las subredes privadas donde se crearán las instáncias del auto escalado
+  target_group_arns    = ["${aws_lb_target_group.my_target_group.arn}"] // Grupo del balanceo de carga (para que se añadan al balanceador una vez que se creen)
+  health_check_type    = "ELB" // Tipo de comprobación de salud a través del balanceador de carga
+  health_check_grace_period = 300 // Segudnos antes de que el grupo de auto escalado inicie la comprobación de salud después de que se haya lanzado una instáncia.
+
+  tag {
+    key                 = "Name"
+    value               = "Wordpress Auto-Scaling" // Nombre Instáncias
+    propagate_at_launch = true
+  }
+}
+```
+<p>Hemos especificado el número mínimo de instancias que se mantendrán activas en el grupo a 1, el número máximo a 2 y la capacidad deseada a 2. Indicamos la configuración de las instancias que hemos definido anteriormente, las subredes privadas donde se lanzarán estas instancias, el target group, el tipo de comprobación de salud que se realizará en las instancias del grupo de acto escalado y el período de gracia en segundos antes de que el grupo de acto escalado inicie la comprobación de salud después de lanzar una instancia, en este caso 300 segundos.</p>
+<p>Por último, creamos una política de escalado automático.</p>
+
+```hcl
+# 3. Creamos una política de escalado automático
+resource "aws_autoscaling_policy" "wordpress" {
+  name           = "cpu-scaling-policy"
+  policy_type           = "TargetTrackingScaling" // La política ajustará automáticamente el número de instáncias en el grupo de escalado automático para mantener una métrica objetivo específica.
+  estimated_instance_warmup = 300 // Indica el tiempo de espera en segundos antes de que una instancia nueva esté completamente operativa para recibir tráfico
+  autoscaling_group_name = aws_autoscaling_group.wordpress.name // Indicamos el grupo de auto escalado
+
+  target_tracking_configuration { // Definimos la configuración de seguimiento
+      predefined_metric_specification {
+        predefined_metric_type = "ASGAverageCPUUtilization" // Miramos el porcentage de CPU utilizado
+      }
+      target_value = 75 // 75% CPU -> Si superá el 75% creará una o varias instáncias automáticamente
+    }
+}
+```
+<p>Hemos definido que el grupo de acto escalado debe ajustar automáticamente el número de instancias en función de una métrica objetivo. En este caso, la métrica objetivo es el uso de CPU, estableciéndose un valor objetivo del 75%. Si el uso de CPU supera este valor, se crearán nuevas instancias automáticamente en el grupo de acto escalado.</p>
