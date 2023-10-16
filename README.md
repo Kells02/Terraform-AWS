@@ -32,7 +32,7 @@
     <li><a href="#xiv-creación-del-balanceo-de-carga">xiv. Creación del Balanceo de Carga</a></li>
     <li><a href="#xv-creación-del-auto-escalado">xv. Creación del Auto Escalado</a></li>
   </ul>
-  <li><a href="vi-conclusión">VI. Conclusión</a></li>
+  <li><a href="#vi-conclusión">VI. Conclusión</a></li>
 </ul>
 
 <h2 id="i-introducción-al-proyecto">I. Introducción al Proyecto</h2>
