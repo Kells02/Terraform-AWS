@@ -1,6 +1,17 @@
 <h1>SkyForge | Terraform & AWS</h1>
 
-<h2>Tabla de Contenidos</h2> 
+<p>by Cristian Fernández Márquez • ☁️🛠️🚀 · ⚙️💻🌐</p>
+<p><b>Licencia: </b><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Attribution-NonCommercial-ShareAlike 4.0 International</a></p>
+<p><em>"Guiando el flujo desde el código hasta la implementación, cada commit es un paso hacia la eficiencia. Comprometido con la excelencia operativa en el universo DevOps. 🌐🚀 #DevOpsJourney"</em></p>
+
+<h2>Tabla de Contenidos</h2>
+<ol>
+  <li><a href="#seccion1">Introducción</a></li>
+  <li><a href="#i-terraform-infraestructura-como-código">I. Terraform: Infraestructura como código</a></li>
+  <li><a href="#seccion3">Sección 3</a></li>
+</ol>
+
+<h2 id="seccion1">Introducción</h2>
 
 <p>El proyecto consiste en desplegar una infraestructura en la nube utilizando Terraform en el proveedor de servicios AWS. A través de la automatización de la infraestructura, nuestro objetivo es crear una plataforma escalable, flexible y altamente disponible para alojar múltiples instancias WordPress.</p>
 
@@ -15,7 +26,7 @@
 </div>
 
 
-<h2>I. Terraform: Infraestructura como código</h2>
+<h2 id="i-terraform-infraestructura-como-código">I. Terraform: Infraestructura como código</h2>
 
 <p>Terraform es una herramienta de infraestructura como código desarrollada por HashiCorp. Permite definir y
 gestionar la infraestructura utilizando un lenguaje de configuración sencillo y comprensible. En lugar de
