@@ -7,8 +7,32 @@
 <h2>Tabla de Contenidos</h2>
 <ul>
   <li><a href="#i-introducción-al-proyecto">I. Introducción al Proyecto</a></li>
-  <li><a href="#i-terraform-infraestructura-como-código">I. Terraform: Infraestructura como código</a></li>
-  <li><a href="#seccion3">Sección 3</a></li>
+  <li><a href="#ii-terraform-infraestructura-como-código">II. Terraform: Infraestructura como código</a></li>
+  <ul>
+    <li><a href="#i-como-funciona-terraform">i. Como funciona Terraform?</a></li>
+    <li><a href="#ii-proveedores-en-terraform">ii-proveedores-en-terraform</a></li>
+  </ul>
+  <li><a href="#iii-aws-como-proveedor">III. AWS como proveedor</a></li>
+  <li><a href="#iv-infraestructura-a-desplegar">IV. Infraestructura a desplegar</a></li>
+  <li><a href="#v-código-de-la-infraestructura">V. Código de la infraestructura</a></li>
+  <ul>
+    <li><a href="#i-configuraciones-basicas">i. Como funciona Terraform?</a></li>
+    <li><a href="#ii-creación-de-la-vpc">ii. Creación de la VPC</a></li>
+    <li><a href="#iii-creación-de-las-subredes-públicas">iii. Creación de las subredes públicas</a></li>
+    <li><a href="#iv-creación-de-las-subredes-privadas">iv. Creación de las subredes privadas</a></li>
+    <li><a href="#v-creación-de-internet-gateway-y-el-enrutamiento-de-las-subredes-públicas">v. Creación de Internet Gateway y el enrutamiento de las subredes públicas</a></li>
+    <li><a href="#vi-creación-de-la-nat-gateway-y-enutameinto-de-las-subredes-privadas">vi. Creación de la NAT Gateway y enutameinto de las subredes privadas</a></li>
+    <li><a href="#vii-creación-de-las-instancias">vii. Creación de las Instancias</a></li>
+    <li><a href="#viii-creación-de-los-grupos-de-seguridad">viii. Creación de los Grupos de Seguridad</a></li>
+    <li><a href="#ix-definición-de-parámetros-ami">ix. Definición de parámetros AMI</a></li>
+    <li><a href="#x-instalador-automático-de-wordpress">x. Instalador Automático de Wordpress</a></li>
+    <li><a href="#xi-instancias-bastión">xi. Instancias Bastión</a></li>
+    <li><a href="#xii-instancias-wordpress">xii. Instancias Wordpress</a></li>
+    <li><a href="#xiii-creación-del-clúster">xiii. Creación del Clúster</a></li>
+    <li><a href="#xiv-creación-del-balanceo-de-carga">xiv. Creación del Balanceo de Carga</a></li>
+    <li><a href="#xv-creación-del-auto-escalado">xv. Creación del Auto Escalado</a></li>
+  </ul>
+  <li><a href="vi-conclusión">VI. Conclusión</a></li>
 </ul>
 
 <h2 id="i-introducción-al-proyecto">I. Introducción al Proyecto</h2>
@@ -26,7 +50,7 @@
 </div>
 
 
-<h2 id="i-terraform-infraestructura-como-código">II. Terraform: Infraestructura como código</h2>
+<h2 id="ii-terraform-infraestructura-como-código">II. Terraform: Infraestructura como código</h2>
 
 <p>Terraform es una herramienta de infraestructura como código desarrollada por HashiCorp. Permite definir y
 gestionar la infraestructura utilizando un lenguaje de configuración sencillo y comprensible. En lugar de
@@ -51,7 +75,7 @@ híbridas</p>
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/5eb6338c-4842-4214-816b-f7d1b51599e8" width="700">
 </div>
 
-<h3>i. Como funciona Terraform?</h3>
+<h3 id="i-como-funciona-terraform">i. Como funciona Terraform?</h3>
 
 <p>Terraform crea y administra recursos en plataformas en la nube y otros servicios a través de sus interfaces de programación de aplicaciones (API). Los proveedores permiten que Terraform funcione con prácticamente cualquier plataforma o servicio con una API accesible.</p>
 
@@ -66,7 +90,7 @@ híbridas</p>
 
 
 
-<h3>ii. Proveedores en Terraform</h3>
+<h3 id="ii-proveedores-en-terraform">ii. Proveedores en Terraform</h3>
 
 <p>En Terraform, los proveedores son componentes fundamentales que permiten la interacción con distintos
 servicios en la nube, proveedores de infraestructura o plataformas de gestión de recursos. Un proveedor
@@ -83,7 +107,7 @@ en Terraform incluyen AWS, Azure, Google Cloud Platform, DigitalOcean, entre otr
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/b2b5bccf-f8af-4b61-be12-90367c473745" width="700">
 </div>
 
-<h2>III. AWS como proveedor</h2>
+<h2 id="iii-aws-como-proveedor">III. AWS como proveedor</h2>
 
 <p>En este proyecto, he utilizado AWS como proveedor de servicios en el nube. AWS (Amazon Web Services) es una plataforma líder en la nube que ofrece una amplia gama de servicios y recursos para la implementación, administración y escalado de aplicaciones y servicios en entornos en la nube.</p>
 
@@ -95,7 +119,7 @@ en Terraform incluyen AWS, Azure, Google Cloud Platform, DigitalOcean, entre otr
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/641893e0-1ff1-43e4-abd8-592a651d9a3e" width="700">
 </div>
 
-<h2>IV. Infraestructura a desplegar</h2>
+<h2 id="iv-infraestructura-a-desplegar">IV. Infraestructura a desplegar</h2>
 
 <p>La infraestructura desplegada consiste en una arquitectura basada en la nube utilizando Amazon Web Services (AWS) como proveedor de servicios. El objetivo principal es crear una infraestructura escalable, segura y de alta disponibilidad para alojar varios WordPress.</p>
 
@@ -174,9 +198,9 @@ El balanceo de carga actuará como un punto de entrada centralizado y distribuir
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/eb82b2bc-c2d8-4755-819d-b50f66d3f7fb" width="500">
 </div>
 
-<h2>V. Código de la infraestructura</h2>
+<h2 id="v-código-de-la-infraestructura">V. Código de la infraestructura</h2>
 
-<h3>i. Configuraciones basicas</h3>
+<h3 id="i-configuraciones-basicas">i. Configuraciones basicas</h3>
 
 <p>Primero de todo hemos creado el archivo <b>“versiones.tf”</b>, en el que indicamos que versiones queremos utilizar tanto para en Terraform como para el provider.</p>
 
@@ -292,7 +316,7 @@ provider "aws" {
 <p>Al establecer el proveedor "aws" con la región y las claves de acceso adecuadas, Terraform podrá autenticarse en la cuenta de AWS y realizar operaciones en los recursos definidos en el archivo de configuración.</p>
 <p>A continuación, ya podemos empezar a crear los recursos para nuestra infraestructura.</p>
 
-<h3>ii. Creación de la VPC</h3>
+<h3 id="ii-creación-de-la-vpc">ii. Creación de la VPC</h3>
 
 <p>Primero debemos saber que es una VPC; Una VPC es una red virtual aislada que permite lanzar recursos en AWS.</p>
 <p>Primero de todo definiremos la VPC (Virtual Private Cloud) y las subredes dentro de ella que utilizaremos en la nuestra infraestructura.</p>
@@ -319,7 +343,7 @@ resource "aws_vpc" "vpc" {
 <p>Por último hemos dejado por defecto el parámetro “instance_tenancy”, el valor "default" indica que las instancias se ejecutarán en hardware compartido. Esto significa que múltiples instancias de diferentes clientes podrían compartir el mismo hardware físico subyacente en el centro de datos de AWS.</p>
 <p>En un entorno de hardware compartido, AWS es responsable de administrar y asignar los recursos de hardware adecuado para garantizar un rendimiento y seguridad óptimos para las instancias. Esto permite a AWS utilizar de forma eficiente los recursos físicos y reducir los costes, ya que múltiples clientes pueden compartir el mismo hardware sin comprometer el aislamiento y la seguridad de los datos.</p>
 
-<h3>iii. Creación de las subredes públicas</h3>
+<h3 id="iii-creación-de-las-subredes-públicas">iii. Creación de las subredes públicas</h3>
 
 <p>Nuestra infraestructura cuenta con 2 subredes públicas. Cada una de las subredes públicas cuentan con un host bastión que posteriormente crearemos y también tendrán una Nat Gateway que darán salida a Internet en las subredes privadas.</p>
 <p>A continuación definimos la primera subred pública.</p>
@@ -356,7 +380,7 @@ resource "aws_subnet" "public-subnet-2" {
 ```
 <p>La configuración es muy similar a la primera subred, pero la red de esta subred es la 30.0.2.0/24 y se encuentra en una región distinta, en us-east-1b.</p>
 
-<h3>iv. Creación de las subredes privadas</h3>
+<h3 id="iv-creación-de-las-subredes-privadas">iv. Creación de las subredes privadas</h3>
 
 <p>A continuación definiremos las 4 subredes privadas que desplegaremos. Dos de las subredes serán dedicadas a web y las otras dos a un cluster de base de datos.</p>
 <p>Definimos la primera subred privada para nuestro primer Wordpress.</p>
@@ -424,7 +448,7 @@ resource "aws_subnet" "private-subnet-rds-2" {
 ```
 <p>La red de la cuarta subred privada es 30.0.6.0/24, definimos que se encuentre en us-east-1b.</p>
 
-<h3>v. Creación de Internet Gateway y el enrutamiento de las subredes públicas</h3>
+<h3 id="v-creación-de-internet-gateway-y-el-enrutamiento-de-las-subredes-públicas">v. Creación de Internet Gateway y el enrutamiento de las subredes públicas</h3>
 <p>En este apartado se crea una Internet Gateway (puerta de enlace de Internet) para permitir el acceso a Internet desde la VPC.</p>
 <p>Internet Gateway actúa como un punto de conexión entre la VPC e Internet. Permite que los recursos dentro de la VPC accedan a Internet y también permite el tráfico de entrada desde Internet hacia los recursos de la VPC, según las reglas de seguridad y encaminamiento configuradas.</p>
 <p>A continuación definimos la Internet Gateway.</p>
@@ -473,7 +497,7 @@ resource "aws_route_table_association" "rt-association2" {
 ```
 <p>Estas asociaciones aseguran que las subredes públicas utilicen la tabla de rutas correcta, la que contiene la ruta hacia Internet Gateway. De esta forma, las instancias en las subredes públicas pueden enviar y recibir tráfico hacia y desde Internet.</p>
 
-<h3>vi. Creación de la NAT Gateway y enutameinto de las subredes privadas</h3>
+<h3 id="vi-creación-de-la-nat-gateway-y-enutameinto-de-las-subredes-privadas">vi. Creación de la NAT Gateway y enutameinto de las subredes privadas</h3>
 <p>A continuación hemos creado la primera NAT Gateway con una IP elástica asociada a la subred pública-1. La NAT Gateway permite que las instancias en las subredes privadas se conecten a Internet saliendo a través de la NAT Gateway. La IP elástica asegura que la dirección IP de la NAT Gateway no cambie, lo que es importante para establecer conexiones de salida de confianza.</p>
 
 ```hcl
@@ -565,7 +589,7 @@ resource "aws_route_table_association" "Nat-Gateway-RT-Association-2" {
 ```
 <p>En resumen, este código crea una tabla de rutas específica para la NAT Gateway-2, permitiendo que el tráfico de salida de la subred privada wp-2 pase a través de la NAT Gateway-2. Esto asegura la conectividad a Internet para los recursos situados en esta subred privada.</p>
 
-<h3>vii. Creación de las Instancias</h3>
+<h3 id="vii-creación-de-las-instancias">vii. Creación de las Instancias</h3>
 <p>Antes de empezar a crear las instancias se ha requerido crear las claves de acceso para acceder a ellas remotamente, como hemos comentado anteriormente.</p>
 <p>Antes de definir las instancias hemos definido un recurso en <b>“instances.tf”</b> que nos permite importar la clave pública generada anteriormente, para su uso en las instancias.</p>
 
@@ -584,7 +608,7 @@ resource "aws_key_pair" "mykey-pair" {
 <b></li>user_data.tpl:</b> Script de instalación automática y configuración de Wordpress para instancias Amazon Linux.</li>
 <b><li>user_data_ubuntu.tpl:</b> Script de instalación y configuración automática de Wordpress para instancias Ubuntu.</li>
 
-<h3>viii. Creación de los Grupos de Seguridad</h3>
+<h3 id="viii-creación-de-los-grupos-de-seguridad">viii. Creación de los Grupos de Seguridad</h3>
 <p>Los grupos de seguridad ayudan a proteger y controlar el tráfico de red dentro de la infraestructura de AWS, garantizando que sólo se permitan las conexiones necesarias y restringiendo el acceso no autorizado.</p>
 <p>Hemos creado el archivo <b>“security-groups.tf”</b> en el que hemos definido todos los grupos de seguridad necesarios para nuestra infraestructura.</p>
 <p>A continuación, hemos definido el grupo de seguridad para las instancias bastión.</p>
@@ -742,7 +766,7 @@ resource "aws_db_subnet_group" "RDS_subnet_grp" {
 ```
 <p>Especificamos las subredes privadas de las bases de datos. Esto es necesario para configurar correctamente el cluster en la red.</p>
 
-<h3>ix. Definición de parámetros AMI</h3>
+<h3 id="ix-definición-de-parámetros-ami">ix. Definición de parámetros AMI</h3>
 <p>Como hemos mencionado anteriormente, podemos realizar la instalación de Wordpress en una instancia Ubuntu o Amazon Linux. Por eso, hemos creado el archivo <b>“aws_ami.tf”</b> para definir los parámetros de cada uno. Estas AMIs se utilizarán más adelante en la configuración para crear instancias de EC2 con las imágenes correctas.</p>
 
 <p>A continuación podemos ver la configuración de ese archivo.</p>
@@ -792,7 +816,7 @@ data "aws_ami" "ubuntu" { // AMI Ubuntu
 ```
 <p>Hemos indicado que queremos la versión más reciente de la AMI. Por otro lado, especificamos que queremos la siguiente AMI <b>“ubuntu-focal-20.04-amd64-server-*”</b> y que la AMI utilice <b>“HVM”</b> como tipo de visualización.</p>
 
-<h3>x. Instalador Automático de Wordpress</h3>
+<h3 id="x-instalador-automático-de-wordpress">x. Instalador Automático de Wordpress</h3>
 <p>Para la instalación de Wordpress hemos creado dos archivos: <b>“user_data.tpl”</b> y <b>“user_data_ubuntu.tpl”</b>.</p>
 <p>El archivo <b>“user_data.tpl”</b> esta configurado para realizar la instalación para una instancia Amazon Linux, en cambio el archivo <b>“user_data_ubuntu.tpl”</b> esta configurado para realizar la instalación para una instancia Ubuntu.</p>
 <p>A continuación podemos ver la configuración del archivo <b>“user_data_ubuntu.tpl”</b>.</p>
@@ -861,7 +885,7 @@ a2enmod rewrite # Habilitamos el módulo "rewrite" de Apache. Es necesario para 
 # 7. Reiniciamos Apache
 systemctl restart apache2 # Reiniciamos el servicio de Apache
 ```
-<h3>xi. Instancias Bastión</h3>
+<h3 id="xi-instancias-bastión">xi. Instancias Bastión</h3>
 <p>Como hemos comentado anteriormente, las instancias bastión actúan como un punto de entrada seguro y controlado para acceder a otros servidores en una red privada, proporcionando una capa adicional de seguridad y control en la administración de sistemas.</p>
 <p>Para la creación del primer host bastión, hemos definido 3 recursos:</p>
 <b><li>Creación de la interfaz de red (aws_network_interface):</b> Creamos una interfaz llamada “bastion1”, indicamos la primera subred pública, asignamos una IP privada a la interfaz "30.0.1.50" y especificamos que utilice el grupo de seguridad bastión.</li>
@@ -968,7 +992,7 @@ resource "null_resource" "copy_file-2" {
   depends_on = [aws_instance.bastion2]
 }
 ```
-<h3>xii. Instancias Wordpress</h3>
+<h3 id="xii-instancias-wordpress">xii. Instancias Wordpress</h3>
 <p>Antes de definir ambas instancias Wordpress, hemos definido el recurso <b>“data.template_file”</b>. Éste recurso nos permite definir un archivo de datos de usuario, que variará según la AMI utilizada (Ubuntu o Amazon Linux). En la especificamos las variables necesarias para el archivo de datos de el usuario, como el nombre de la base de datos, contraseña de la base de datos, nombre del usuario y el endpoint para poder realizar la conexión. Estos son los datos que se traspasan a los archivos <b>“.tpl”</b>, que hemos comentado anteriormente.</p>
 
 ```hcl
@@ -1029,7 +1053,7 @@ resource "aws_instance" "wordpress2" {
 ```
 <p>Com hem comentat abans aquestes instàncies sortiran a Internet mitjançant les NAT Gateways configurades anteriorment.</p>
 
-<h3>xiii. Creación del Clúster</h3>
+<h3 id="xiii-creación-del-clúster">xiii. Creación del Clúster</h3>
 <p>Hemos definido un cluster mediante el servicio RDS (Relational Dtabase Service) de AWS en el archivo <b>“database.tf”</b>.</p>
 <p>A continuación, podemos ver cómo hemos definido el recurso <b>“aws_rds_clúster”</b> para la creación del clúster.</p>
 
@@ -1084,7 +1108,7 @@ resource "aws_rds_cluster_instance" "wordpressdb-2" { // Nodo2 - Slave (Lectura 
 ```
 <p>Establecemos los mismos valores que el nodo1. En este caso indicamos que dependa del nodo1. Cómo podemos ver no es necesario indicarle si es el nodo maestro o esclavo ya que al crearse después del nodo1, AWS ya da por supuesto que es el nodo esclavo.</p>
 
-<h3>xiv. Creación del Balanceo de Carga</h3>
+<h3 id="xiv-creación-del-balanceo-de-carga">xiv. Creación del Balanceo de Carga</h3>
 <p>Hemos creado un balanceo de carga en el archivo <b>“balanceador.tf”</b>, ya que es una estrategia clave para mejorar el rendimiento, la disponibilidad y la escalabilidad de las aplicaciones y servicios. Permite distribuir la carga de trabajo de forma equitativa, mejorar el tiempo de respuesta, garantizar la disponibilidad continua y facilitar la gestión del tráfico.</p>
 <p>Ante todo hemos tenido que definir un target group (grupo objetivo). Un target group representa un grupo lógico de destinos a los que se dirigen las solicitudes entrantes desde el balanceador de carga. Cada target group está asociado a un balanceador de carga y define las instancias o destinos a los que se debe enrutar el tráfico de forma equitativa y eficiente.</p>
 
@@ -1161,7 +1185,7 @@ resource "aws_lb_target_group_attachment" "wp2" {
   port = 80 // Puerto de escucha
 }
 ```
-<h3>xv. Creación del Auto Escalado</h3>
+<h3 id="xv-creación-del-auto-escalado">xv. Creación del Auto Escalado</h3>
 <p>También hemos definido un acto escalado en el archivo <b>“auto scaling.tf”</b>, puesto que nos permite ajustar automáticamente la capacidad de recursos de computación en función de la demanda de aplicación.</p>
 <p>A continuación podemos ver la configuración de la instancia de lanzamiento para el escalado automático. La configuración de lanzamiento se utiliza como base para crear nuevas instancias cuando se requiere escalar automáticamente el número de instancias en función de la carga o política de escalado definida.</p>
 
@@ -1222,7 +1246,7 @@ resource "aws_autoscaling_policy" "wordpress" {
 ```
 <p>Hemos definido que el grupo de autoo escalado debe ajustar automáticamente el número de instancias en función de una métrica objetivo. En este caso, la métrica objetivo es el uso de CPU, estableciéndose un valor objetivo del 75%. Si el uso de CPU supera este valor, se crearán nuevas instancias automáticamente en el grupo de acto escalado.</p>
 
-<h2>VI. Conclusión</h2>
+<h2 id="vi-conclusión">VI. Conclusión</h2>
 <p>En conclusión, el despliegue automatizado de esta infraestructura en la nube utilizando Terraform y AWS nos ha permitido crear un entorno altamente disponible, escalable y flexible para a alojar nuestros sitios de WordPress. Mediante la configuración de una VPC, subredes, balanceo de carga, autoescalado y clúster de base de datos, hemos logrado establecer una infraestructura robusta que puede adaptarse a las necesidades cambiantes.</p>
 <p>Aquest projecte ens ha brindat nombrosos beneficis, com la capacitat d'escalar automàticament les nostres instàncies de WordPress segons la demanda, garantint una experiència òptima per als usuaris. A més, hem assegurat l'alta disponibilitat i la tolerància a fallades en distribuir les nostres instàncies en diferents zones de disponibilitat i en implementar mecanismes de connectivitat redundant.</p>
 <p>La utilización de Terraform nos ha permitido gestionar y mantener fácilmente nuestra infraestructura como a código, lo que facilita la replicación del entorno en diferentes etapas de desarrollo y en otros regiones de AWS si es necesario. Asimismo, hemos aprovechado las ventajas de AWS como proveedor de servicios en la nube, beneficiándonos de su amplia gama de servicios y su escalabilidad.</p>
