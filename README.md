@@ -5,13 +5,13 @@
 <p><em>"Guiando el flujo desde el código hasta la implementación, cada commit es un paso hacia la eficiencia. Comprometido con la excelencia operativa en el universo DevOps. 🌐🚀 #DevOpsJourney"</em></p>
 
 <h2>Tabla de Contenidos</h2>
-<ol>
-  <li><a href="#seccion1">Introducción</a></li>
+<ul>
+  <li><a href="#i-introducción-al-proyecto">I. Introducción al Proyecto</a></li>
   <li><a href="#i-terraform-infraestructura-como-código">I. Terraform: Infraestructura como código</a></li>
   <li><a href="#seccion3">Sección 3</a></li>
-</ol>
+</ul>
 
-<h2 id="seccion1">Introducción</h2>
+<h2 id="i-introducción-al-proyecto">I. Introducción al Proyecto</h2>
 
 <p>El proyecto consiste en desplegar una infraestructura en la nube utilizando Terraform en el proveedor de servicios AWS. A través de la automatización de la infraestructura, nuestro objetivo es crear una plataforma escalable, flexible y altamente disponible para alojar múltiples instancias WordPress.</p>
 
@@ -26,7 +26,7 @@
 </div>
 
 
-<h2 id="i-terraform-infraestructura-como-código">I. Terraform: Infraestructura como código</h2>
+<h2 id="i-terraform-infraestructura-como-código">II. Terraform: Infraestructura como código</h2>
 
 <p>Terraform es una herramienta de infraestructura como código desarrollada por HashiCorp. Permite definir y
 gestionar la infraestructura utilizando un lenguaje de configuración sencillo y comprensible. En lugar de
@@ -83,7 +83,7 @@ en Terraform incluyen AWS, Azure, Google Cloud Platform, DigitalOcean, entre otr
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/b2b5bccf-f8af-4b61-be12-90367c473745" width="700">
 </div>
 
-<h2>II. AWS como proveedor</h2>
+<h2>III. AWS como proveedor</h2>
 
 <p>En este proyecto, he utilizado AWS como proveedor de servicios en el nube. AWS (Amazon Web Services) es una plataforma líder en la nube que ofrece una amplia gama de servicios y recursos para la implementación, administración y escalado de aplicaciones y servicios en entornos en la nube.</p>
 
@@ -95,7 +95,7 @@ en Terraform incluyen AWS, Azure, Google Cloud Platform, DigitalOcean, entre otr
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/641893e0-1ff1-43e4-abd8-592a651d9a3e" width="700">
 </div>
 
-<h2>III. Infraestructura a desplegar</h2>
+<h2>IV. Infraestructura a desplegar</h2>
 
 <p>La infraestructura desplegada consiste en una arquitectura basada en la nube utilizando Amazon Web Services (AWS) como proveedor de servicios. El objetivo principal es crear una infraestructura escalable, segura y de alta disponibilidad para alojar varios WordPress.</p>
 
@@ -174,7 +174,7 @@ El balanceo de carga actuará como un punto de entrada centralizado y distribuir
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/eb82b2bc-c2d8-4755-819d-b50f66d3f7fb" width="500">
 </div>
 
-<h2>IV. Código de la infraestructura</h2>
+<h2>V. Código de la infraestructura</h2>
 
 <h3>i. Configuraciones basicas</h3>
 
@@ -1222,7 +1222,7 @@ resource "aws_autoscaling_policy" "wordpress" {
 ```
 <p>Hemos definido que el grupo de autoo escalado debe ajustar automáticamente el número de instancias en función de una métrica objetivo. En este caso, la métrica objetivo es el uso de CPU, estableciéndose un valor objetivo del 75%. Si el uso de CPU supera este valor, se crearán nuevas instancias automáticamente en el grupo de acto escalado.</p>
 
-<h2>V. Conclusión</h2>
+<h2>VI. Conclusión</h2>
 <p>En conclusión, el despliegue automatizado de esta infraestructura en la nube utilizando Terraform y AWS nos ha permitido crear un entorno altamente disponible, escalable y flexible para a alojar nuestros sitios de WordPress. Mediante la configuración de una VPC, subredes, balanceo de carga, autoescalado y clúster de base de datos, hemos logrado establecer una infraestructura robusta que puede adaptarse a las necesidades cambiantes.</p>
 <p>Aquest projecte ens ha brindat nombrosos beneficis, com la capacitat d'escalar automàticament les nostres instàncies de WordPress segons la demanda, garantint una experiència òptima per als usuaris. A més, hem assegurat l'alta disponibilitat i la tolerància a fallades en distribuir les nostres instàncies en diferents zones de disponibilitat i en implementar mecanismes de connectivitat redundant.</p>
 <p>La utilización de Terraform nos ha permitido gestionar y mantener fácilmente nuestra infraestructura como a código, lo que facilita la replicación del entorno en diferentes etapas de desarrollo y en otros regiones de AWS si es necesario. Asimismo, hemos aprovechado las ventajas de AWS como proveedor de servicios en la nube, beneficiándonos de su amplia gama de servicios y su escalabilidad.</p>
