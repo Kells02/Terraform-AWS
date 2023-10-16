@@ -1251,3 +1251,11 @@ resource "aws_autoscaling_policy" "wordpress" {
 <p>Aquest projecte ens ha brindat nombrosos beneficis, com la capacitat d'escalar automàticament les nostres instàncies de WordPress segons la demanda, garantint una experiència òptima per als usuaris. A més, hem assegurat l'alta disponibilitat i la tolerància a fallades en distribuir les nostres instàncies en diferents zones de disponibilitat i en implementar mecanismes de connectivitat redundant.</p>
 <p>La utilización de Terraform nos ha permitido gestionar y mantener fácilmente nuestra infraestructura como a código, lo que facilita la replicación del entorno en diferentes etapas de desarrollo y en otros regiones de AWS si es necesario. Asimismo, hemos aprovechado las ventajas de AWS como proveedor de servicios en la nube, beneficiándonos de su amplia gama de servicios y su escalabilidad.</p>
 <p>En resumen, este proyecto ha demostrado el valor de la automatización y la infraestructura como código en la creación de una arquitectura cloud robusta y adaptable. Hemos aprendido a escalar una posible infraestructura de forma eficiente y brindar un servicio de confianza a nuestros usuarios.</p>
+
+<hr>
+<p><a href="https://github.com/Kells02/Terraform-AWS">SkyForge | Terraform & AWS</a></p>
+<p>by Cristian Fernández Márquez está licenciado bajo <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Attribution-NonCommercial-ShareAlike 4.0 International</a></p>
+
+<div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/6c96958c-e1a9-484b-ab07-0b0a5a94eda6" width="200">
+</div>
