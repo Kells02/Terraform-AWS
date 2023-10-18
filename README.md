@@ -119,6 +119,28 @@ en Terraform incluyen AWS, Azure, Google Cloud Platform, DigitalOcean, entre otr
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/641893e0-1ff1-43e4-abd8-592a651d9a3e" width="700">
 </div>
 
+<h2 id="iv-requisitos-previos">IV. Requisitos Previos</h2>
+<p>Antes de adentrarnos en el proyecto, aseguremosnos de tener los sifuientes requisitos:</p>
+
+<ul>
+  <li>Tener instalado Terraform en tu máquina local.</li>
+  <li>Tener instalado AWS CLI en tu máquina local.</li>
+  <li>Tener instalado Visual Studio Code en tu máquina local.</li>
+  <li>Tener instalado Putty en tu máquina local.</li>
+  <li>Configuración de AWS CLI</li>
+  <p>Escribimos <b>“aws configure”</b> en la terminal y añadimos la clave de acceso de nuestra cuenta de AWS, clave de acceso secreta, la región y el tipo de formato.</p>
+  
+  ```shell
+   C:\Users\Cristian\Desktop> aws configure
+  AWS Access Key ID [None]:  AKIAYERA2MSHZAYLKAUL       
+  AWS Secret Access Key [None]: XXXXXXXXXXXXXXXXXXXXXX
+  Default region name [None]: eu-west-1
+  Default output format [None]: json
+  ```
+  <li>Clave SSH y conversión a .ppk</li>
+  <p></p>
+</ul>
+
 <h2 id="iv-infraestructura-a-desplegar">IV. Infraestructura a desplegar</h2>
 
 <p>La infraestructura desplegada consiste en una arquitectura basada en la nube utilizando Amazon Web Services (AWS) como proveedor de servicios. El objetivo principal es crear una infraestructura escalable, segura y de alta disponibilidad para alojar varios WordPress.</p>
