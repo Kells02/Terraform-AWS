@@ -10,11 +10,12 @@
   <li><a href="#ii-terraform-infraestructura-como-código">II. Terraform: Infraestructura como código</a></li>
   <ul>
     <li><a href="#i-como-funciona-terraform">i. Como funciona Terraform?</a></li>
-    <li><a href="#ii-proveedores-en-terraform">ii-proveedores-en-terraform</a></li>
+    <li><a href="#ii-proveedores-en-terraform">ii. Proveedores en Terraform</a></li>
   </ul>
   <li><a href="#iii-aws-como-proveedor">III. AWS como proveedor</a></li>
-  <li><a href="#iv-infraestructura-a-desplegar">IV. Infraestructura a desplegar</a></li>
-  <li><a href="#v-código-de-la-infraestructura">V. Código de la infraestructura</a></li>
+  <li><a href="#iv-requisitos-previos">IV. Requisitos Previos</a></li>
+  <li><a href="#v-infraestructura-a-desplegar">V. Infraestructura a desplegar</a></li>
+  <li><a href="#vi-código-de-la-infraestructura">VI. Código de la infraestructura</a></li>
   <ul>
     <li><a href="#i-configuraciones-basicas">i. Como funciona Terraform?</a></li>
     <li><a href="#ii-creación-de-la-vpc">ii. Creación de la VPC</a></li>
@@ -32,7 +33,7 @@
     <li><a href="#xiv-creación-del-balanceo-de-carga">xiv. Creación del Balanceo de Carga</a></li>
     <li><a href="#xv-creación-del-auto-escalado">xv. Creación del Auto Escalado</a></li>
   </ul>
-  <li><a href="#vi-conclusión">VI. Conclusión</a></li>
+  <li><a href="#vii-conclusión">VII. Conclusión</a></li>
 </ul>
 
 <h2 id="i-introducción-al-proyecto">I. Introducción al Proyecto</h2>
@@ -180,7 +181,7 @@ en Terraform incluyen AWS, Azure, Google Cloud Platform, DigitalOcean, entre otr
   </div>
 </ul>
 
-<h2 id="iv-infraestructura-a-desplegar">IV. Infraestructura a desplegar</h2>
+<h2 id="v-infraestructura-a-desplegar">V. Infraestructura a desplegar</h2>
 
 <p>La infraestructura desplegada consiste en una arquitectura basada en la nube utilizando Amazon Web Services (AWS) como proveedor de servicios. El objetivo principal es crear una infraestructura escalable, segura y de alta disponibilidad para alojar varios WordPress.</p>
 
@@ -259,7 +260,7 @@ El balanceo de carga actuará como un punto de entrada centralizado y distribuir
    <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/eb82b2bc-c2d8-4755-819d-b50f66d3f7fb" width="500">
 </div>
 
-<h2 id="v-código-de-la-infraestructura">V. Código de la infraestructura</h2>
+<h2 id="vi-código-de-la-infraestructura">VI. Código de la infraestructura</h2>
 
 <h3 id="i-configuraciones-basicas">i. Configuraciones basicas</h3>
 
@@ -1307,7 +1308,7 @@ resource "aws_autoscaling_policy" "wordpress" {
 ```
 <p>Hemos definido que el grupo de autoo escalado debe ajustar automáticamente el número de instancias en función de una métrica objetivo. En este caso, la métrica objetivo es el uso de CPU, estableciéndose un valor objetivo del 75%. Si el uso de CPU supera este valor, se crearán nuevas instancias automáticamente en el grupo de acto escalado.</p>
 
-<h2 id="vi-conclusión">VI. Conclusión</h2>
+<h2 id="vii-conclusión">VII. Conclusión</h2>
 <p>En conclusión, el despliegue automatizado de esta infraestructura en la nube utilizando Terraform y AWS nos ha permitido crear un entorno altamente disponible, escalable y flexible para a alojar nuestros sitios de WordPress. Mediante la configuración de una VPC, subredes, balanceo de carga, autoescalado y clúster de base de datos, hemos logrado establecer una infraestructura robusta que puede adaptarse a las necesidades cambiantes.</p>
 <p>Aquest projecte ens ha brindat nombrosos beneficis, com la capacitat d'escalar automàticament les nostres instàncies de WordPress segons la demanda, garantint una experiència òptima per als usuaris. A més, hem assegurat l'alta disponibilitat i la tolerància a fallades en distribuir les nostres instàncies en diferents zones de disponibilitat i en implementar mecanismes de connectivitat redundant.</p>
 <p>La utilización de Terraform nos ha permitido gestionar y mantener fácilmente nuestra infraestructura como a código, lo que facilita la replicación del entorno en diferentes etapas de desarrollo y en otros regiones de AWS si es necesario. Asimismo, hemos aprovechado las ventajas de AWS como proveedor de servicios en la nube, beneficiándonos de su amplia gama de servicios y su escalabilidad.</p>
