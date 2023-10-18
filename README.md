@@ -120,25 +120,64 @@ en Terraform incluyen AWS, Azure, Google Cloud Platform, DigitalOcean, entre otr
 </div>
 
 <h2 id="iv-requisitos-previos">IV. Requisitos Previos</h2>
-<p>Antes de adentrarnos en el proyecto, aseguremosnos de tener los sifuientes requisitos:</p>
+<p>Antes de adentrarnos en el proyecto, tenemos que tener los siguientes requisitos:</p>
 
 <ul>
   <li>Tener instalado Terraform en tu máquina local.</li>
   <li>Tener instalado AWS CLI en tu máquina local.</li>
   <li>Tener instalado Visual Studio Code en tu máquina local.</li>
   <li>Tener instalado Putty en tu máquina local.</li>
-  <li>Configuración de AWS CLI</li>
+  <li>Configuración de AWS CLI.</li>
   <p>Escribimos <b>“aws configure”</b> en la terminal y añadimos la clave de acceso de nuestra cuenta de AWS, clave de acceso secreta, la región y el tipo de formato.</p>
   
   ```shell
-   C:\Users\Cristian\Desktop> aws configure
+  C:\Users\Cristian\Desktop> aws configure
   AWS Access Key ID [None]:  AKIAYERA2MSHZAYLKAUL       
   AWS Secret Access Key [None]: XXXXXXXXXXXXXXXXXXXXXX
   Default region name [None]: eu-west-1
   Default output format [None]: json
   ```
-  <li>Clave SSH y conversión a .ppk</li>
-  <p></p>
+  <li>Clave SSH y conversión a .ppk.</li>
+  <p>Para generar la clave SSH de las máquinas tenemos que realizar este comando en la terminal.</p>
+
+  ```shell
+  C:\Users\Cristian\Desktop>ssh-keygen -f mykey-pair
+  Generating public/private rsa key pair.
+  mykey-pair already exists.
+  Overwrite (y/n)? y
+  Enter passphrase (empty for no passphrase):
+  Enter same passphrase again:
+  Your identification has been saved in mykey-pair.
+  Your public key has been saved in mykey-pair.pub.
+  The key fingerprint is:
+  SHA256:xHZmIltXFy7Z/xU28VEW5EuxH7HIQ5PRZzIMpMoYmVU cristian@DESKTOP-Q2N5RAE
+  The key's randomart image is:
+  +---[RSA 3072]----+
+  |        ..E.+*BO=|
+  |       =   oo*Bo@|
+  |      = * * o+o&o|
+  |       X B   .+.*|
+  |      o S      .+|
+  |                o|
+  |                .|
+  |                 |
+  |                 |
+  +----[SHA256]-----+
+  ```
+  <p>Primero de todo abrimos Putty Key Generator y seleccionamos la opción <b>"load"</b>.</p>
+  <div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/513d734d-5124-45ca-b21f-c8b216d47727" width="400">
+  </div>
+  
+  <p>A continuación seleccionamos la clave privada generada anteriormente.</p>
+  <div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/a1aba79a-a5e2-4a91-9b5b-6c5a057df604" width="400">
+  </div>
+
+  <p>Por último seleccionamos la opción <b>“save private key”</b> y le ponemos el formato <b>".ppk”</b>.</p>
+  <div align="center">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/ceae2ac6-b04b-40e0-8a9b-1149bfe8e98d" width="400">
+  </div>
 </ul>
 
 <h2 id="iv-infraestructura-a-desplegar">IV. Infraestructura a desplegar</h2>
