@@ -172,7 +172,7 @@ en Terraform incluyen AWS, Azure, Google Cloud Platform, DigitalOcean, entre otr
   
   <p>A continuación seleccionamos la clave privada generada anteriormente.</p>
   <div align="center">
-   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/a1aba79a-a5e2-4a91-9b5b-6c5a057df604" width="400">
+   <img src="https://github.com/Kells02/Terraform-AWS/assets/101474487/f9b9c0b8-4987-4642-899b-32397176587c" width="400">
   </div>
 
   <p>Por último seleccionamos la opción <b>“save private key”</b> y le ponemos el formato <b>".ppk”</b>.</p>
