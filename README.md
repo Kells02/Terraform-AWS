@@ -238,7 +238,7 @@ Amazon Aurora se basa en el motor de base de datos MySQL y ofrece un rendimiento
 
 El nodo Master actuará como punto central de control y gestión del clúster. Es responsable de coordinar y distribuir las tareas entre los nodos esclavos, así como de mantener la coherencia y consistencia de los datos. El nodo Master también es el encargado de manejar las solicitudes de escritura y asegurarse de que se repliquen correctamente en los nodos esclavos.
 
-Por otro lado, el nodo escalau es una réplica del nodo Master y está diseñado para manejar solicitudes de sólo lectura. Este nodo se sincronizará con el nodo Master y mantendrá una copia actualizada de los datos.
+Por otro lado, el nodo Slave es una réplica del nodo Master y está diseñado para manejar solicitudes de sólo lectura. Este nodo se sincronizará con el nodo Master y mantendrá una copia actualizada de los datos.
 
 La arquitectura de cluster “Master-Slave” ofrece varias ventajas. En primer lugar, proporciona alta disponibilidad, ya que si el nodo Master experimenta algún problema, uno de los nodos Slaves puede asumir el rol de Master y garantizar la continuidad del servicio. Esto asegura que nuestra aplicación esté siempre disponible incluso en caso de fallos.</li>
 
@@ -524,7 +524,7 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 ```
-<p>En el següent codi definim una taula de rutes per a la subxarxa pública. La taula de rutes especifica com s’enruta el trànsit dins de la VPC i cap a fora d'ella, i en aquest cas es configura per a permetre l'accés a Internet.</p>
+<p>En el siguiente código definimos una tabla de rutas para la subred pública. La tabla de rutas especifica cómo se enruta el tráfico dentro de la VPC y hacia fuera de ella, en cuyo caso se configura para permitir el acceso a Internet.</p>
 
 ```hcl
 # 9. (Definimos la tabla de rutas para la subred pública, especificamos la puerta de enlace de Internet)
@@ -540,7 +540,7 @@ resource "aws_route_table" "public-rt" {
   }
 }
 ```
-<p>Aquesta configuració assegura que tot el trànsit destinat a adreces IP externes (0.0.0.0/0) es dirigeixi a la Internet Gateway, la qual cosa permet que les instàncies en la subxarxa pública accedeixin a Internet.</p>
+<p>Esta configuración asegura que todo el tráfico destinado a direcciones IP externas (0.0.0.0/0) se dirija a Internet Gateway, lo que permite que las instancias en la subred pública accedan a Internet.</p>
 
 ```hcl
 #  10. Asociar Route Table a la Subred Pública-1
@@ -604,8 +604,8 @@ resource "aws_route_table_association" "Nat-Gateway-RT-Association-1" {
   route_table_id = aws_route_table.NAT-Gateway-RT-1.id // Tabla de rutas NAT-1
 }
 ```
-<p>En resum, aquest codi crea una taula de rutes dedicada per a la NAT Gateway-1, que permet l'encaminament del trànsit cap a la NAT Gateway-1 per a la seva sortida a Internet. A més, s'estableix l'associació entre aquesta taula de rutes i la primera subxarxa privada, la qual cosa assegura que el trànsit de sortida d'aquesta subxarxa passi a través de la NAT Gateway-1.</p>
-<p>A continuació creem la segona NAT Gateway amb una IP elàstica associada a la segona subxarxa privada.</p>
+<p>En resumen, este código crea una tabla de rutas dedicada a la NAT Gateway-1, que permite el encaminamiento del tráfico hacia la NAT Gateway-1 para su salida a Internet. Además, se establece la asociación entre esta tabla de rutas y la primera subred privada, lo que asegura que el tráfico de salida de esa subred pase a través de la NAT Gateway-1.</p>
+<p>A continuación creamos la segunda NAT Gateway con una IP elástica asociada a la segunda subred privada.</p>
 
 ```hcl
 // --------------------- NAT 2 --------------------------------
@@ -1091,8 +1091,8 @@ resource "aws_instance" "wordpress1" {
   }
 }
 ```
-<p>Creem la segona instància Wordpress.</p>
-<p>Fem la mateixa configuració, però canviem la subxarxa per la segona subxarxa privada amb la IP privada “30.0.3.50”.</p>
+<p>Creamos la segunda instancia Wordpress.</p>
+<p>Hacemos la misma configuración, pero cambiamos la subred por la segunda subred privada con la IP privada "30.0.3.50".</p>
 
 ```hcl
 # 7. Creamos la instáncia Wordpress2
@@ -1113,7 +1113,7 @@ resource "aws_instance" "wordpress2" {
   }
 }
 ```
-<p>Com hem comentat abans aquestes instàncies sortiran a Internet mitjançant les NAT Gateways configurades anteriorment.</p>
+<p>Como hemos comentado antes, estas instancias saldrán a Internet mediante las NAT Gateways configuradas anteriormente.</p>
 
 <h3 id="xiii-creación-del-clúster">xiii. Creación del Clúster</h3>
 <p>Hemos definido un cluster mediante el servicio RDS (Relational Dtabase Service) de AWS en el archivo <b>“database.tf”</b>.</p>
@@ -1310,7 +1310,7 @@ resource "aws_autoscaling_policy" "wordpress" {
 
 <h2 id="vii-conclusión">VII. Conclusión</h2>
 <p>En conclusión, el despliegue automatizado de esta infraestructura en la nube utilizando Terraform y AWS nos ha permitido crear un entorno altamente disponible, escalable y flexible para a alojar nuestros sitios de WordPress. Mediante la configuración de una VPC, subredes, balanceo de carga, autoescalado y clúster de base de datos, hemos logrado establecer una infraestructura robusta que puede adaptarse a las necesidades cambiantes.</p>
-<p>Aquest projecte ens ha brindat nombrosos beneficis, com la capacitat d'escalar automàticament les nostres instàncies de WordPress segons la demanda, garantint una experiència òptima per als usuaris. A més, hem assegurat l'alta disponibilitat i la tolerància a fallades en distribuir les nostres instàncies en diferents zones de disponibilitat i en implementar mecanismes de connectivitat redundant.</p>
+<p>Este proyecto nos ha brindado numerosos beneficios, como la capacidad de escalar automáticamente nuestras instancias de WordPress según demanda, garantizando una experiencia óptima para los usuarios. Además, hemos asegurado la alta disponibilidad y la tolerancia a fallos al distribuir nuestras instancias en diferentes zonas de disponibilidad y al implementar mecanismos de conectividad redundante.</p>
 <p>La utilización de Terraform nos ha permitido gestionar y mantener fácilmente nuestra infraestructura como a código, lo que facilita la replicación del entorno en diferentes etapas de desarrollo y en otros regiones de AWS si es necesario. Asimismo, hemos aprovechado las ventajas de AWS como proveedor de servicios en la nube, beneficiándonos de su amplia gama de servicios y su escalabilidad.</p>
 <p>En resumen, este proyecto ha demostrado el valor de la automatización y la infraestructura como código en la creación de una arquitectura cloud robusta y adaptable. Hemos aprendido a escalar una posible infraestructura de forma eficiente y brindar un servicio de confianza a nuestros usuarios.</p>
 
